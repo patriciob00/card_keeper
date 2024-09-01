@@ -27,7 +27,7 @@ class CardListItem {
         id: json["id"],
         localId: json["localId"],
         name: json["name"],
-        image: json["image"] != null ? json["image"] + '/low.webp' : null,
+        image: json["image"] != null ? json["image"] + '/high.webp' : null,
       );
 
   Map<String, dynamic> toJson() => {

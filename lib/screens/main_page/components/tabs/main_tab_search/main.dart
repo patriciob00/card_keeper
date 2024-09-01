@@ -40,7 +40,7 @@ class _MaintabSearchState extends State<MainTabSearch> {
   Widget build(BuildContext context) {
     return Padding(
       padding:
-          EdgeInsets.only(top: MainBarWithGlass().preferredSize.height + 65),
+          EdgeInsets.only(top: MainBarWithGlass().preferredSize.height, left: 20, right: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
