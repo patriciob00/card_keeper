@@ -42018,7 +42018,7 @@ s=A.bE(a,r,t.w).w
 return new A.d6(B.aS,new A.Ea(2,new A.cc(q,B.o),A.e8(r,new A.d6(B.Ce,A.h3(A.EH(A.b([B.Jf,A.hq(A.ahD("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",B.yM),r,s.a.a/4)],t.E),B.bd,B.bX,B.bY),r,r,new A.F_(r),B.m),r),B.p,r,r,new A.cR(r,r,r,p,r,new A.qc(B.O,1.6,B.bp,r,0,o,r,r),B.aq),r,200,r,r,r,r,r),r),r)}}
 A.afN.prototype={
 $1(a){var s=a.h(0,"id"),r=a.h(0,"localId"),q=a.h(0,"name")
-return new A.fp(s,r,q,a.h(0,"image")!=null?J.akq(a.h(0,"image"),"/low.webp"):null)},
+return new A.fp(s,r,q,a.h(0,"image")!=null?J.akq(a.h(0,"image"),"/high.webp"):null)},
 $S:271}
 A.afO.prototype={
 $1(a){return a.d!=null},
@@ -42129,7 +42129,7 @@ return A.O($async$ui,r)},
 iV(a){this.ui(a)},
 J(a){var s=this,r=A.ahQ(),q=s.f,p=s.e,o=s.d
 if(o==null)o=A.b([],t.Vx)
-return new A.d6(new A.ax(0,r.d.b+65,0,0),A.EH(A.b([new A.Eb(s.gUu(),null),new A.Jb(p,o,q,null)],t.E),B.bd,B.bX,B.bY),null)}}
+return new A.d6(new A.ax(20,r.d.b,20,0),A.EH(A.b([new A.Eb(s.gUu(),null),new A.Jb(p,o,q,null)],t.E),B.bd,B.bX,B.bY),null)}}
 A.abu.prototype={
 $0(){var s=this.a
 s.f=!1
