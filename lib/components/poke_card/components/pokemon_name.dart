@@ -28,8 +28,7 @@ final class ArrowPainter extends CustomPainter {
 }
 
 class PokemonName extends StatelessWidget {
-  const PokemonName({Key? key, required this.name, required this.id})
-      : super(key: key);
+  const PokemonName({super.key, required this.name, required this.id});
   final String name;
   final int id;
 

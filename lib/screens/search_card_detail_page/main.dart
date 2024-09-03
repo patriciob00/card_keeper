@@ -1,7 +1,6 @@
 import 'package:card_keeper/components/hero_widget.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 const Color commonBgColor = Color(0xff17203A);
 

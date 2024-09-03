@@ -7,7 +7,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        title: 'Card Keeper',
+        title: 'PokéDeck',
         home: MainPage());
   }
 }
