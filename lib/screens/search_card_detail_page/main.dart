@@ -17,6 +17,8 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
   bool isExpanded = false;
   int quantity = 1;
 
+  bool isLoading = false;
+
   void addQuantity() {
     setState(() {
       quantity = quantity + 1;
@@ -28,6 +30,20 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
       setState(() {
         quantity = quantity - 1;
       });
+    }
+  }
+
+  void saveCard() {
+    setState(() {
+      isLoading = !isLoading;
+    });
+
+    if(!isLoading) {
+      const snackBar = SnackBar(content: Text('O Card foi adicionado a sua lista de cards!'));
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      Navigator.of(context).pop();
     }
   }
 
@@ -55,7 +71,7 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
                 child: Row(
                   children: [
                     RawMaterialButton(
-                      onPressed: () {
+                      onPressed: isLoading ? null : () {
                         Navigator.of(context).pop();
                       },
                       elevation: 2.0,
@@ -69,20 +85,31 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
                       ),
                     ),
                     QuantityCtrl(
+                        isLoading: isLoading,
                         quantity: quantity,
                         remove: removeQuantity,
                         add: addQuantity),
                     RawMaterialButton(
-                      onPressed: () {},
+                      onPressed: saveCard,
                       elevation: 2.0,
                       fillColor: commonBgColor,
                       padding: const EdgeInsets.all(10.0),
                       shape: const CircleBorder(),
-                      child: const Icon(
-                        Icons.save_alt,
-                        size: 35.0,
-                        color: Colors.lightGreen,
-                      ),
+                      child: isLoading
+                          ? Container(
+                              width: 24,
+                              height: 24,
+                              padding: const EdgeInsets.all(2.0),
+                              child: const CircularProgressIndicator(
+                                color: Colors.lightGreen,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.save_alt,
+                              size: 35.0,
+                              color: Colors.lightGreen,
+                            ),
                     )
                   ],
                 ),
@@ -92,7 +119,7 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
                 size: size,
                 widget: widget,
                 quantity: quantity,
-              )
+              ),
             ],
           )),
         ));
@@ -138,12 +165,15 @@ class QuantityCtrl extends StatelessWidget {
   final int quantity;
   final Function add;
   final Function remove;
+  final bool isLoading;
 
   const QuantityCtrl(
       {super.key,
       required this.quantity,
       required this.add,
-      required this.remove});
+      required this.remove,
+      required this.isLoading
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -170,12 +200,15 @@ class QuantityCtrl extends StatelessWidget {
                   alignment: WrapAlignment.spaceEvenly,
                   children: [
                     GestureDetector(
-                      onTap: () {
+                      onTap: isLoading ? null : () {
                         if (quantity > 1) {
                           remove();
                         }
                       },
-                      child: const Icon(Icons.remove, color: Colors.black,),
+                      child: const Icon(
+                        Icons.remove,
+                        color: Colors.black,
+                      ),
                     ),
                     SizedBox(
                       width: 28,
@@ -189,10 +222,13 @@ class QuantityCtrl extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
+                      onTap: isLoading ? null : () {
                         add();
                       },
-                      child: const Icon(Icons.add, color: Colors.black,),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.black,
+                      ),
                     ),
                   ]),
             ),
