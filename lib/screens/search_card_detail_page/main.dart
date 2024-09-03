@@ -14,7 +14,7 @@ class SearchCardDetailPage extends StatefulWidget {
 }
 
 class SearchCardDetailPageState extends State<SearchCardDetailPage> {
-  bool isExpanded = true;
+  bool isExpanded = false;
   int quantity = 1;
 
   void addQuantity() {
@@ -29,6 +29,12 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
         quantity = quantity - 1;
       });
     }
+  }
+
+  @override
+  void initState() {
+    isExpanded = true;
+    super.initState();
   }
 
   @override
@@ -120,7 +126,7 @@ class CardWidget extends StatelessWidget {
           child: HeroWidget(
             tag: widget.card.image ?? '',
             child: Image.network(
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.contain,
               widget.card.image ?? '',
             ),
           ),

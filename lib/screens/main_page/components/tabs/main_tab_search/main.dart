@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/service/poke_card_service.dart';
 import 'package:card_keeper/screens/main_page/components/main_bar.dart';
@@ -38,9 +40,10 @@ class _MaintabSearchState extends State<MainTabSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final paddingTop = Platform.isIOS ? MainBarWithGlass().preferredSize.height + 60 : MainBarWithGlass().preferredSize.height;
     return Padding(
       padding:
-          EdgeInsets.only(top: MainBarWithGlass().preferredSize.height, left: 20, right: 20),
+          EdgeInsets.only(top: paddingTop, left: 20, right: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
