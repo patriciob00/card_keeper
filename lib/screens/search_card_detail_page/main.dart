@@ -41,9 +41,8 @@ class SearchCardDetailPageState extends State<SearchCardDetailPage> {
     if(!isLoading) {
       const snackBar = SnackBar(content: Text('O Card foi adicionado a sua lista de cards!'));
 
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((reason) {
+      });
     }
   }
 
