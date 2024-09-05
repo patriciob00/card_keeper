@@ -56,7 +56,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  remove_alpha_ios: false
+  remove_alpha_ios: true
   image_path: "assets/icon/icon_launcher.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
@@ -89,7 +89,6 @@ flutter:
     - assets/icon/
     - assets/images/
     - assets/svg/
-    - assets/images/types_badge/
     - assets/images/tabs_icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see

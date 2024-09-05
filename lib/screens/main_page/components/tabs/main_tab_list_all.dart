@@ -1,4 +1,3 @@
-import 'package:card_keeper/components/poke_card/index.dart';
 import 'package:card_keeper/screens/main_page/components/main_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +12,7 @@ class MainTabListAll extends StatelessWidget {
       mainAxisSpacing: 15,
       crossAxisSpacing: 15,
       childAspectRatio: 2 / 3,
-      children: List.generate(10, (index) => const PokeCard()),
+      children: List.generate(10, (index) => Container()),
     );
   }
 }
