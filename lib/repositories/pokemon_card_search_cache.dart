@@ -1,7 +1,7 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final pokemonCardsRepositoryProvider = StateNotifierProvider<PokemonCardsRepository, List<PokemonCard>>((ref) => PokemonCardsRepository(),); 
+final pokemonCardsSearchProvider = StateNotifierProvider<PokemonCardsRepository, List<PokemonCard>>((ref) => PokemonCardsRepository(),); 
 
 class PokemonCardsRepository extends StateNotifier<List<PokemonCard>> {
   

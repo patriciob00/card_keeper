@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:card_keeper/data/models/card_list_item_model.dart';
+import 'package:card_keeper/data/models/pokemon_card.dart';
+import 'package:dio/dio.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -13,6 +15,21 @@ class PokeCardApi {
     if(response.statusCode == 200) {
       return cardListItemFromJson(const Utf8Decoder().convert(response.bodyBytes));
     }
+    return null;
+  }
+
+  Future<PokemonCard?> getCardById(String cardId) async {
+    print('fui chamado na API');
+    final client = Dio();
+    final response = await client.get('https://api.tcgdex.net/v2/pt/cards/$cardId');
+
+    print('fui chamado na response');
+
+    if(response.statusCode == 200) {
+      print('fui chamado no statuscode');
+      return PokemonCard.fromJson(response.data);
+    }
+
     return null;
   }
 }
