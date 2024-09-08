@@ -136,7 +136,7 @@ class Attack {
     List<String>? cost;
     String? name;
     String? effect;
-    int? damage;
+    String? damage;
 
     Attack({
         this.cost,
@@ -149,7 +149,7 @@ class Attack {
         cost: json["cost"] == null ? [] : List<String>.from(json["cost"]!.map((x) => x)),
         name: json["name"],
         effect: json["effect"],
-        damage: json["damage"],
+        damage: json["damage"].toString(),
     );
 
     Map<String, dynamic> toJson() => {

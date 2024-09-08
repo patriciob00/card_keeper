@@ -59,7 +59,7 @@ class _BottomBarState extends State<BottomBar> {
                     if(widget.isAlreadyOnList) {
                       widget.removePokemon();
                     } else {
-                      widget.saveNewPokemon();
+                      widget.saveNewPokemon(cardQuantity);
                     }
                   },
                   child: Row(children: [

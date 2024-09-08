@@ -8,12 +8,10 @@ class CardWidget extends StatefulWidget {
     required this.isExpanded,
     required this.size,
     required this.widget,
-    required this.quantity,
   });
 
   final Size size;
   final SearchCardDetailPage widget;
-  final int quantity;
   final bool isExpanded;
 
   @override

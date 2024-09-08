@@ -31,8 +31,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
   
   bool _animate = false;
 
-  int quantity = 1;
-
   bool isLoading = false;
 
   @override
@@ -69,12 +67,12 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     }
   }
 
-  void saveCardOnList() {
+  void saveCardOnList(int quantity) {
     setState(() {
       isLoading = !isLoading;
     });
 
-    _detailController.saveCard(currentPokemon);
+    _detailController.saveCard(currentPokemon, quantity);
 
     setFavoriteValue();
 
@@ -114,20 +112,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
           .showSnackBar(snackBar)
           .closed
           .then((reason) {});
-  }
-
-  void addQuantity() {
-    setState(() {
-      quantity = quantity + 1;
-    });
-  }
-
-  void removeQuantity() {
-    if (quantity > 1) {
-      setState(() {
-        quantity = quantity - 1;
-      });
-    }
   }
 
   void showBottomSheet() {
@@ -176,7 +160,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
                         isExpanded: _animate,
                         size: size,
                         widget: widget,
-                        quantity: quantity,
                       ),
                       BottomBar(size: size, animate: _animate, isAlreadyOnList: _isOnList, saveNewPokemon: saveCardOnList, removePokemon: removeCardFromList,)
                     ],

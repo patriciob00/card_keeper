@@ -30,7 +30,8 @@ class DetailControler {
     return null;
   }
 
-  Future<void> saveCard(PokemonCard pokemonCard) async {
+  Future<void> saveCard(PokemonCard pokemonCard, int quantity) async {
+    pokemonCard.cardQuantity = quantity;
     await ref.read(pokemonCardsRepositoryProvider.notifier).addCard(pokemonCard);
   }
 
