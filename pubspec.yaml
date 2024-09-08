@@ -91,6 +91,7 @@ flutter:
     - assets/images/
     - assets/svg/
     - assets/images/tabs_icons/
+    - assets/images/types_badge/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
