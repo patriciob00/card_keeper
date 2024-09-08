@@ -11,8 +11,10 @@ class MainContent extends StatelessWidget {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white);
 
   static const List<Widget> _tabOptions = <Widget>[
-  MainTabListAll(),
+  SizedBox(),
   MainTabSearch(),
+  MainTabListAll(),
+  SizedBox(),
   ];
 
   @override
