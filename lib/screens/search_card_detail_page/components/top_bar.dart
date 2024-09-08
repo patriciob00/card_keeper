@@ -4,8 +4,9 @@ class TopBar extends StatelessWidget {
   final Size size;
   final bool animate;
   final Function moreOptionsFn;
+  final bool disableMoreOptions;
 
-  const TopBar({ super.key, required this.size, required this.animate, required this.moreOptionsFn });
+  const TopBar({ super.key, required this.size, required this.animate, required this.moreOptionsFn, required this.disableMoreOptions });
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +26,9 @@ class TopBar extends StatelessWidget {
                   icon: const Icon(Icons.chevron_left,
                       color: Colors.white, size: 28.0)),
               IconButton(
-                  onPressed: () => moreOptionsFn(),
-                  icon: const Icon(Icons.more_vert_rounded,
-                      color: Colors.white, size: 24.0)),
+                  onPressed: disableMoreOptions ? null : () => moreOptionsFn(),
+                  icon: Icon(Icons.more_vert_rounded,
+                      color: disableMoreOptions ? Colors.transparent :Colors.white, size: 24.0)),
             ],
           ),
       ),

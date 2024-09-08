@@ -18,17 +18,17 @@ class SearchCardDetailPage extends ConsumerStatefulWidget {
   const SearchCardDetailPage({super.key, required this.card});
 
   @override
-  ConsumerState<SearchCardDetailPage> createState() => SearchCardDetailPageState();
+  ConsumerState<SearchCardDetailPage> createState() =>
+      SearchCardDetailPageState();
 }
 
 class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
-
-  late PokemonCard currentPokemon;
+  PokemonCard? currentPokemon;
 
   late DetailControler _detailController;
 
   bool _isOnList = false;
-  
+
   bool _animate = false;
 
   bool isLoading = false;
@@ -52,7 +52,8 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
   void setFavoriteValue() {
     setState(() {
-      _isOnList = _detailController.pokemonIsAlreadyOnList(widget.card.id ?? '');
+      _isOnList =
+          _detailController.pokemonIsAlreadyOnList(widget.card.id ?? '');
     });
   }
 
@@ -60,7 +61,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     PokemonCard? pkm;
     pkm = await _detailController.getCard(widget.card.id ?? '');
 
-    if(pkm != null) {
+    if (pkm != null) {
       setState(() {
         currentPokemon = pkm as PokemonCard;
       });
@@ -72,7 +73,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
       isLoading = !isLoading;
     });
 
-    _detailController.saveCard(currentPokemon, quantity);
+    _detailController.saveCard(currentPokemon as PokemonCard, quantity);
 
     setFavoriteValue();
 
@@ -81,21 +82,21 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     });
 
     const snackBar = SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text('O Card foi adicionado a sua lista de cards!'));
+        duration: Duration(seconds: 3),
+        content: Text('O Card foi adicionado a sua lista de cards!'));
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(snackBar)
-          .closed
-          .then((reason) {});
+    ScaffoldMessenger.of(context)
+        .showSnackBar(snackBar)
+        .closed
+        .then((reason) {});
   }
 
   void removeCardFromList() async {
     setState(() {
       isLoading = !isLoading;
     });
-    
-    await _detailController.removeCard(currentPokemon);
+
+    await _detailController.removeCard(currentPokemon as PokemonCard);
 
     setFavoriteValue();
 
@@ -104,26 +105,26 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     });
 
     const snackBar = SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text('O Card foi removido da sua lista de cards!'));
+        duration: Duration(seconds: 3),
+        content: Text('O Card foi removido da sua lista de cards!'));
 
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context)
-          .showSnackBar(snackBar)
-          .closed
-          .then((reason) {});
+    // ignore: use_build_context_synchronously
+    ScaffoldMessenger.of(context)
+        .showSnackBar(snackBar)
+        .closed
+        .then((reason) {});
   }
 
   void showBottomSheet() {
     showModalBottomSheet(
-      backgroundColor: const Color.fromARGB(255, 51, 51, 52),
-      clipBehavior: Clip.hardEdge,
-      context: context,
-      showDragHandle: true,
-      builder: (BuildContext bc) {
-        return ModalBottomSheet(card: widget.card);
-      }
-    );
+        backgroundColor: const Color.fromARGB(255, 51, 51, 52),
+        clipBehavior: Clip.hardEdge,
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (BuildContext bc) {
+          return ModalBottomSheet(card: currentPokemon as PokemonCard);
+        });
   }
 
   @override
@@ -155,13 +156,24 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      TopBar( animate: _animate, size: size, moreOptionsFn: showBottomSheet ),
+                      TopBar(
+                          disableMoreOptions: !_isOnList,
+                          animate: _animate,
+                          size: size,
+                          moreOptionsFn: showBottomSheet),
                       CardWidget(
                         isExpanded: _animate,
                         size: size,
                         widget: widget,
                       ),
-                      BottomBar(size: size, animate: _animate, isAlreadyOnList: _isOnList, saveNewPokemon: saveCardOnList, removePokemon: removeCardFromList,)
+                      BottomBar(
+                        size: size,
+                        pokemon: currentPokemon,
+                        animate: _animate,
+                        isAlreadyOnList: _isOnList,
+                        saveNewPokemon: saveCardOnList,
+                        removePokemon: removeCardFromList,
+                      )
                     ],
                   ),
                 ),

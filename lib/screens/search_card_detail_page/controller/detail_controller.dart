@@ -23,6 +23,7 @@ class DetailControler {
     pokemonCard = await pokeCardService.getCardById(cardId);
 
     if (pokemonCard != null) { 
+      pokemonCard.image = '${pokemonCard.image}/high.webp';
       ref.read(pokemonCardsSearchProvider.notifier).addCard(pokemonCard);
       return pokemonCard;  
     }
