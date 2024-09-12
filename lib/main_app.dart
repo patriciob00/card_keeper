@@ -1,4 +1,4 @@
-import 'package:card_keeper/screens/cards_list_screen.dart';
+import 'package:card_keeper/screens/cards_list_screen/main.dart';
 import 'package:card_keeper/screens/deck_list_screen/main.dart';
 import 'package:card_keeper/screens/search_screen/main.dart';
 import 'package:card_keeper/widgets/bottom_tabs.dart';

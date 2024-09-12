@@ -2,6 +2,7 @@ import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/service/poke_card_service.dart';
 import 'package:card_keeper/screens/search_screen/components/card_search_bar.dart';
 import 'package:card_keeper/screens/search_screen/components/search_content.dart';
+import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:card_keeper/widgets/top_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,33 +46,27 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-            image: AssetImage('assets/images/splash_bg.png'),
-            fit: BoxFit.cover),
+    return ContainerWithBg(
+        child: Scaffold(
+      appBar: TopBar(
+        centerWidget: CardSearchBar(onSubmit: searchCard),
       ),
-      child: Scaffold(
-        appBar: TopBar(
-          centerWidget: CardSearchBar(onSubmit: searchCard),
-        ),
-        backgroundColor: Colors.transparent,
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        body: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SearchContent(
-                isLoaded: isLoaded,
-                isLoading: isLoading,
-                cardList: cardList ?? [],
-              )
-            ],
-          ),
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      body: Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SearchContent(
+              isLoaded: isLoaded,
+              isLoading: isLoading,
+              cardList: cardList ?? [],
+            )
+          ],
         ),
       ),
-    );
+    ));
   }
 }

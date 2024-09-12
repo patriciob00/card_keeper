@@ -6,7 +6,7 @@ class TopBar extends AppBar {
           centerTitle: centerTitle,
           bottomOpacity: 30.0,
           backgroundColor: Colors.black.withOpacity(0.3),
-          elevation: 10.0,
+          elevation: 0.0,
           shadowColor: Colors.black,
           surfaceTintColor: Colors.white,
           scrolledUnderElevation: 20.0,

@@ -4,9 +4,9 @@ import 'package:card_keeper/repositories/pokemon_card_search_cache.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DetailControler {
+class PokemonCardsControler {
   final WidgetRef ref;
-  const DetailControler({required this.ref});
+  const PokemonCardsControler({required this.ref});
 
   Future<PokemonCard?> getCard(String cardId) async {
     final foundOnList =
@@ -42,5 +42,9 @@ class DetailControler {
 
   bool pokemonIsAlreadyOnList(String cardId) {
     return ref.read(pokemonCardsRepositoryProvider.notifier).searchCard(cardId) != null;
+  }
+
+  List<PokemonCard> getCardsList() {
+    return ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider).toList();
   }
 }

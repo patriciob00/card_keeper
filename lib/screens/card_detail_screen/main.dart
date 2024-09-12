@@ -6,7 +6,7 @@ import 'package:card_keeper/screens/card_detail_screen/components/bottom_bar.dar
 import 'package:card_keeper/screens/card_detail_screen/components/card_widget.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/modal_bottom_sheet.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/top_bar.dart';
-import 'package:card_keeper/screens/card_detail_screen/controller/detail_controller.dart';
+import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,7 +25,7 @@ class SearchCardDetailPage extends ConsumerStatefulWidget {
 class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
   PokemonCard? currentPokemon;
 
-  late DetailControler _detailController;
+  late PokemonCardsControler _detailController;
 
   bool _isOnList = false;
 
@@ -38,7 +38,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     super.initState();
     _animate = true;
 
-    _detailController = DetailControler(ref: ref);
+    _detailController = PokemonCardsControler(ref: ref);
 
     setFavoriteValue();
     getCurrentPokemon();
