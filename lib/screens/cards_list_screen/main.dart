@@ -107,29 +107,3 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     );
   }
 }
-
-
-
-
-// GridView.builder(
-//               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                 crossAxisCount: 2,
-//                 mainAxisSpacing: 15,
-//                 crossAxisSpacing: 15,
-//                 childAspectRatio: 2 / 3,
-//               ),
-//               itemCount: cardsList.length,
-//               itemBuilder: (BuildContext context, int index) {
-//                 return GestureDetector(
-//                     onTap: () {},
-//                     child: HeroWidget(
-//                         tag: cardsList[index].image ?? '',
-//                         child: FadeInImage.assetNetwork(
-//                           placeholderFit: BoxFit.cover,
-//                           placeholder: 'images/card-back.png',
-//                           image: cardsList[index].image ?? '',
-//                           fit: BoxFit.contain,
-//                           filterQuality: FilterQuality.high,
-//                         )));
-//               },
-//             )

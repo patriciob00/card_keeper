@@ -19,14 +19,10 @@ class PokeCardApi {
   }
 
   Future<PokemonCard?> getCardById(String cardId) async {
-    print('fui chamado na API');
     final client = Dio();
     final response = await client.get('https://api.tcgdex.net/v2/pt/cards/$cardId');
 
-    print('fui chamado na response');
-
     if(response.statusCode == 200) {
-      print('fui chamado no statuscode');
       return PokemonCard.fromJson(response.data);
     }
 

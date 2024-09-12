@@ -10,7 +10,6 @@ class PokeCardService {
   }
 
   Future<PokemonCard?> getCardById(String cardId) async {
-    print('fui chamado no service $cardId');
     return _api.getCardById(cardId);
   }
 }
