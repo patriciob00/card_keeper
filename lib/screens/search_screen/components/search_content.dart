@@ -1,7 +1,8 @@
-import 'package:card_keeper/components/hero_widget.dart';
+import 'package:card_keeper/widgets/bottom_tabs.dart';
+import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
-import 'package:card_keeper/screens/main_page/components/tabs/main_tab_search/components/item_not_found.dart';
-import 'package:card_keeper/screens/search_card_detail_page/main.dart';
+import 'package:card_keeper/screens/search_screen/components/item_not_found.dart';
+import 'package:card_keeper/screens/card_detail_screen/main.dart';
 import 'package:flutter/material.dart';
 
 class SearchContent extends StatelessWidget {
@@ -42,8 +43,8 @@ class Content extends StatelessWidget {
   Widget build(BuildContext context) {
     void openCardDetailPage(CardListItem card) {
       Navigator.of(context).push(PageRouteBuilder(
-          transitionDuration: const Duration(seconds: 1),
-          reverseTransitionDuration: const Duration(seconds: 1),
+          transitionDuration: const Duration(milliseconds: 400),
+          reverseTransitionDuration: const Duration(milliseconds: 400),
           pageBuilder: ((context, animation, secondaryAnimation) {
             final curvedAnimation = CurvedAnimation(
                 parent: animation, curve: const Interval(0, 0.5));
@@ -56,14 +57,16 @@ class Content extends StatelessWidget {
           })));
     }
 
+    double appBarheight = Scaffold.of(context).appBarMaxHeight as double;
+    double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
+
     return Container(
-      margin: const EdgeInsets.only(top: 20),
       child: isLoading
           ? const Center(child: CircularProgressIndicator())
           : isLoaded && cardList.isEmpty
               ? const ItemNotFound()
               : GridView.builder(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.only(top: appBarheight + 10.0, bottom: bottomTabHeight + 10),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 15,
@@ -78,7 +81,9 @@ class Content extends StatelessWidget {
                         },
                         child: HeroWidget(
                             tag: cardList[index].image ?? '',
-                            child: Image.network(cardList[index].image ?? '')));
+                            child: FadeInImage.assetNetwork(placeholderFit: BoxFit.cover, placeholder: 'images/card-back.png', image: cardList[index].image ?? '', fit: BoxFit.contain, filterQuality: FilterQuality.high,)));
+                            // child: Image.network(loadingBuilder: (context, child, loadingProgress) => Image.asset('assets/images/card-back.png'), cardList[index].image ?? '')));
+                    // child: Image.network(cardList[index].image ?? '')));
                   },
                 ),
     );

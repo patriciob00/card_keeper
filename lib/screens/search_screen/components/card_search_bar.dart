@@ -20,25 +20,25 @@ class CardSearchBar extends StatelessWidget {
           letterSpacing: 0.5,
         ),
         onSubmitted: onSubmit,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
           filled: true,
-          fillColor: Colors.black,
-          border: OutlineInputBorder(
+          fillColor: Colors.black.withOpacity(0.5),
+          border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(36)),
               borderSide: BorderSide(
                   color: Color.fromARGB(120, 255, 255, 255), width: 0.5)),
-          focusedBorder: OutlineInputBorder(
+          focusedBorder: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(36)),
               borderSide: BorderSide(color: Colors.white, width: 0.5)),
           hintText: "Buscar carta",
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
               color: Color(0xffb2b2b2),
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
               decorationThickness: 6),
-          suffixIcon: Icon(Icons.search),
+          suffixIcon: const Icon(Icons.search),
           prefixIconColor: Colors.white,
         ),
       ),

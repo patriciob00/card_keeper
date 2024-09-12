@@ -2,11 +2,11 @@ import 'dart:ui';
 
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/screens/search_card_detail_page/components/bottom_bar.dart';
-import 'package:card_keeper/screens/search_card_detail_page/components/card_widget.dart';
-import 'package:card_keeper/screens/search_card_detail_page/components/modal_bottom_sheet.dart';
-import 'package:card_keeper/screens/search_card_detail_page/components/top_bar.dart';
-import 'package:card_keeper/screens/search_card_detail_page/controller/detail_controller.dart';
+import 'package:card_keeper/screens/card_detail_screen/components/bottom_bar.dart';
+import 'package:card_keeper/screens/card_detail_screen/components/card_widget.dart';
+import 'package:card_keeper/screens/card_detail_screen/components/modal_bottom_sheet.dart';
+import 'package:card_keeper/screens/card_detail_screen/components/top_bar.dart';
+import 'package:card_keeper/screens/card_detail_screen/controller/detail_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -132,6 +132,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
+      extendBody: true,
       body: GestureDetector(
         onTap: () => {
           setState(() {
@@ -162,7 +163,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
                           size: size,
                           moreOptionsFn: showBottomSheet),
                       CardWidget(
-                        isExpanded: _animate,
                         size: size,
                         widget: widget,
                       ),

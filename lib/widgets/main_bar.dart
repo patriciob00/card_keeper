@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class MainBar extends AppBar {
@@ -17,18 +15,5 @@ class MainBar extends AppBar {
               fontSize: 22.0,
               fontWeight: FontWeight.bold),
           backgroundColor: Colors.black.withOpacity(0.1),
-        );
-}
-
-class MainBarWithGlass extends PreferredSize {
-  MainBarWithGlass({ super.key})
-      : super(
-          child: ClipRRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              child: MainBar(),
-            ),
-          ), 
-          preferredSize: const Size(double.infinity, 56.0)
         );
 }

@@ -1,4 +1,5 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -41,6 +42,8 @@ class _BottomBarState extends State<BottomBar> {
     }
   }
 
+  bool get isWeb => kIsWeb;
+
   @override
   Widget build(BuildContext context) {
     const iconfavorite = Icon(Icons.favorite, color: Colors.red, size: 15);
@@ -82,17 +85,25 @@ class _BottomBarState extends State<BottomBar> {
         ),
       ),
       SvgPicture.asset(
-          'assets/svg/sale_icon.svg',
-          width: 40,
-          semanticsLabel: 'available for sale',
-          colorFilter: ColorFilter.mode( widget.pokemon?.isAvailableForSale == true ? Colors.green.withOpacity(0.54) : Colors.redAccent.withOpacity(0.54), BlendMode.srcIn),
-        ),
+        'assets/svg/sale_icon.svg',
+        width: 40,
+        semanticsLabel: 'available for sale',
+        colorFilter: ColorFilter.mode(
+            widget.pokemon?.isAvailableForSale == true
+                ? Colors.green.withOpacity(0.54)
+                : Colors.redAccent.withOpacity(0.54),
+            BlendMode.srcIn),
+      ),
       SvgPicture.asset(
-          'assets/svg/trading_icon.svg',
-          width: 40,
-          semanticsLabel: 'available for trading',
-          colorFilter: ColorFilter.mode( widget.pokemon?.isAvailableForExchange == true ? Colors.green.withOpacity(0.54) : Colors.redAccent.withOpacity(0.54), BlendMode.srcIn),
-        ),
+        'assets/svg/trading_icon.svg',
+        width: 40,
+        semanticsLabel: 'available for trading',
+        colorFilter: ColorFilter.mode(
+            widget.pokemon?.isAvailableForExchange == true
+                ? Colors.green.withOpacity(0.54)
+                : Colors.redAccent.withOpacity(0.54),
+            BlendMode.srcIn),
+      ),
     ];
 
     List<Widget> notAddedCardRow = [
@@ -160,14 +171,24 @@ class _BottomBarState extends State<BottomBar> {
       width: widget.size.width,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-        child: AnimatedOpacity(
-          opacity: widget.animate ? 1 : 0,
-          duration: const Duration(milliseconds: 300),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:
-                  widget.isAlreadyOnList ? addedCardRow : notAddedCardRow),
-        ),
+        child: isWeb
+            ? Opacity(
+                opacity: widget.animate ? 1 : 0,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: widget.isAlreadyOnList
+                        ? addedCardRow
+                        : notAddedCardRow),
+              )
+            : AnimatedOpacity(
+                opacity: widget.animate ? 1 : 0,
+                duration: const Duration(milliseconds: 300),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: widget.isAlreadyOnList
+                        ? addedCardRow
+                        : notAddedCardRow),
+              ),
       ),
     );
   }

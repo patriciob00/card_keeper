@@ -40,6 +40,9 @@ dependencies:
   flutter_native_splash: ^2.4.1
   flutter_riverpod: ^2.5.1
   dio: ^5.7.0
+  web: ^1.0.0
+  pointer_interceptor: ^0.10.1+2
+  material_symbols_icons: ^4.2785.1
 
 
 dev_dependencies:
