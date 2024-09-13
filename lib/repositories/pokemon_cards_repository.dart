@@ -11,6 +11,10 @@ class PokemonCardsRepository extends StateNotifier<List<PokemonCard>> {
     return state.where((pk) => pk.id == id).firstOrNull;
   }
 
+  addList(List<PokemonCard> cards) {
+    state = cards;
+  }
+
   addCard(PokemonCard pokemonCard) {
     state = [...state, pokemonCard];
   }

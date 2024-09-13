@@ -43,6 +43,7 @@ dependencies:
   web: ^1.0.0
   pointer_interceptor: ^0.10.1+2
   material_symbols_icons: ^4.2785.1
+  shared_preferences: ^2.3.2
 
 
 dev_dependencies:
