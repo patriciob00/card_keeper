@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/screens/card_detail_screen/main.dart';
+import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class CardWidget extends StatefulWidget {
   const CardWidget({
@@ -17,28 +20,22 @@ class CardWidget extends StatefulWidget {
 }
 
 class _CardWidgetState extends State<CardWidget> with TickerProviderStateMixin {
-
   @override
   void initState() {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
-          width: widget.size.width * 0.90,
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-          child: HeroWidget(
-            tag: widget.widget.card.image ?? '',
-            child: Image.network(
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
-              widget.widget.card.image ?? '',
-            ),
-          ),
-        );
+      width: widget.size.width * 0.90,
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+      ),
+      child: HeroWidget(
+        tag: widget.widget.card.image ?? '',
+        child: ImageCached(imageURL: widget.widget.card.image ?? ''),
+      ),
+    );
   }
 }
