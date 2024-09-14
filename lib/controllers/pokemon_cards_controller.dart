@@ -47,6 +47,12 @@ class PokemonCardsControler {
     await _pkmnStorage.removePokemon(pokemon);
   }
 
+  Future<void> updateCard(PokemonCard pokemonCard) async {
+    await ref.read(pokemonCardsRepositoryProvider.notifier).updateCard(pokemonCard);
+
+    await _pkmnStorage.updatePokemon(pokemonCard);
+  }
+
   bool pokemonIsAlreadyOnList(String cardId) {
     return ref.read(pokemonCardsRepositoryProvider.notifier).searchCard(cardId) != null;
   }

@@ -22,6 +22,13 @@ class PokemonCardStorage {
     await savePokemonCardList(cardList);
   }
 
+  Future<void> updatePokemon(PokemonCard pkmn) async {
+    List<PokemonCard> cardList = await getPokemonCardList();
+    int index = cardList.indexWhere((p) => p.id == pkmn.id);
+    cardList[index] = pkmn;
+    await savePokemonCardList(cardList);
+  }
+
   Future<void> savePokemonCardList(List<PokemonCard> cards) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> jsonStringList =
