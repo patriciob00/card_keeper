@@ -20,9 +20,14 @@ class PokemonCardsRepository extends StateNotifier<List<PokemonCard>> {
   }
 
   removeCard(PokemonCard pokemonCard) {
-    state.remove(pokemonCard);
+    state = state.where((c) => c.id != pokemonCard.id).toList();
+  }
 
-    state.removeWhere((card) => card.id == pokemonCard.id);
+  updateCard(PokemonCard pokemonCard) {
+    List<PokemonCard> newState = [...state];
+    int index = newState.indexWhere((p) => p.id == pokemonCard.id);
+    newState[index] = pokemonCard;
+    state = newState;
   }
 
   int get getTotalOfCards {
