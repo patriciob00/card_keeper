@@ -1,11 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/screens/search_screen/components/item_not_found.dart';
 import 'package:card_keeper/screens/card_detail_screen/main.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 class SearchContent extends StatelessWidget {
   final bool isLoading;

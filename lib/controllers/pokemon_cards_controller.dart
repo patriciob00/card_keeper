@@ -2,11 +2,14 @@ import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/service/poke_card_service.dart';
 import 'package:card_keeper/repositories/pokemon_card_search_cache.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
+import 'package:card_keeper/storage/pokemon-card-storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PokemonCardsControler {
   final WidgetRef ref;
   const PokemonCardsControler({required this.ref});
+
+  static final PokemonCardStorage _pkmnStorage = PokemonCardStorage();
 
   Future<PokemonCard?> getCard(String cardId) async {
     final foundOnList =
@@ -34,10 +37,14 @@ class PokemonCardsControler {
   Future<void> saveCard(PokemonCard pokemonCard, int quantity) async {
     pokemonCard.cardQuantity = quantity;
     await ref.read(pokemonCardsRepositoryProvider.notifier).addCard(pokemonCard);
+
+    await _pkmnStorage.savePokemon(pokemonCard);
   }
 
   Future<void> removeCard(PokemonCard pokemon) async {
     await ref.read(pokemonCardsRepositoryProvider.notifier).removeCard(pokemon);
+
+    await _pkmnStorage.removePokemon(pokemon);
   }
 
   bool pokemonIsAlreadyOnList(String cardId) {
@@ -46,5 +53,11 @@ class PokemonCardsControler {
 
   List<PokemonCard> getCardsList() {
     return ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider).toList();
+  }
+
+  Future<void> initializeCardsListFromDb() async {
+    List<PokemonCard> cards = await _pkmnStorage.getPokemonCardList();
+
+    await ref.read(pokemonCardsRepositoryProvider.notifier).addList(cards);
   }
 }
