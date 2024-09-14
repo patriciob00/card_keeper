@@ -2,6 +2,7 @@ import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/screens/search_screen/components/item_not_found.dart';
 import 'package:card_keeper/screens/card_detail_screen/main.dart';
+import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:flutter/material.dart';
 
 class SearchContent extends StatelessWidget {
@@ -65,7 +66,8 @@ class Content extends StatelessWidget {
           : isLoaded && cardList.isEmpty
               ? const ItemNotFound()
               : GridView.builder(
-                  padding: EdgeInsets.only(top: appBarheight + 10.0, bottom: bottomTabHeight + 10),
+                  padding: EdgeInsets.only(
+                      top: appBarheight + 10.0, bottom: bottomTabHeight + 10),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 15,
@@ -79,10 +81,9 @@ class Content extends StatelessWidget {
                           openCardDetailPage(cardList[index]);
                         },
                         child: HeroWidget(
-                            tag: cardList[index].image ?? '',
-                            child: FadeInImage.assetNetwork(placeholderFit: BoxFit.cover, placeholder: 'images/card-back.png', image: cardList[index].image ?? '', fit: BoxFit.contain, filterQuality: FilterQuality.high,)));
-                            // child: Image.network(loadingBuilder: (context, child, loadingProgress) => Image.asset('assets/images/card-back.png'), cardList[index].image ?? '')));
-                    // child: Image.network(cardList[index].image ?? '')));
+                          tag: cardList[index].image ?? '',
+                          child: ImageCached(imageURL: cardList[index].image ?? ''),
+                        ));
                   },
                 ),
     );
