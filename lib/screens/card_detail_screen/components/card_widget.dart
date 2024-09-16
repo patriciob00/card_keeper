@@ -1,9 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/screens/card_detail_screen/main.dart';
+import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 class CardWidget extends StatefulWidget {
   const CardWidget({
@@ -14,6 +12,7 @@ class CardWidget extends StatefulWidget {
 
   final Size size;
   final SearchCardDetailPage widget;
+
 
   @override
   State<CardWidget> createState() => _CardWidgetState();

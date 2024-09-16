@@ -1,16 +1,14 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/screens/card_detail_screen/components/bottom_bar.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/card_widget.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/modal_bottom_sheet.dart';
-import 'package:card_keeper/screens/card_detail_screen/components/top_bar.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-const Color commonBgColor = Color(0xff17203A);
+import 'package:material_symbols_icons/symbols.dart';
 
 class SearchCardDetailPage extends ConsumerStatefulWidget {
   final CardListItem card;
@@ -29,14 +27,11 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
   bool _isOnList = false;
 
-  bool _animate = false;
-
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _animate = true;
 
     _detailController = PokemonCardsControler(ref: ref);
 
@@ -46,7 +41,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
   @override
   void dispose() {
-    _animate = false;
     super.dispose();
   }
 
@@ -68,12 +62,29 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     }
   }
 
-  void saveCardOnList(int quantity) {
+  void saveCardOnList(int quantity, bool isAvailableForSale, bool isAvailableForTrade) {
     setState(() {
       isLoading = !isLoading;
     });
 
-    _detailController.saveCard(currentPokemon as PokemonCard, quantity);
+    PokemonCard newCard = PokemonCard.fromJson(currentPokemon!.toJson());
+
+    newCard.cardQuantity = quantity;
+    newCard.isAvailableForSale = isAvailableForSale;
+    newCard.isAvailableForExchange = isAvailableForTrade;
+
+    if(_isOnList) {
+      _detailController.updateCard(newCard);
+    } else {
+      _detailController.saveCard(newCard);
+    }
+
+    SnackBar snackBar = SnackBar(
+        duration: const Duration(seconds: 3),
+        content: Text(_isOnList ? 'O Card foi atualizado!' : 'O Card foi adicionado a sua lista de cards!'));
+
+    getCurrentPokemon();
+
 
     setFavoriteValue();
 
@@ -81,9 +92,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
       isLoading = !isLoading;
     });
 
-    const snackBar = SnackBar(
-        duration: Duration(seconds: 3),
-        content: Text('O Card foi adicionado a sua lista de cards!'));
 
     ScaffoldMessenger.of(context)
         .showSnackBar(snackBar)
@@ -117,13 +125,13 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
   void showBottomSheet() {
     showModalBottomSheet(
-        backgroundColor: const Color.fromARGB(255, 51, 51, 52),
+        backgroundColor: Colors.white,
         clipBehavior: Clip.hardEdge,
         context: context,
         showDragHandle: true,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return ModalBottomSheet(card: currentPokemon as PokemonCard);
+          return ModalBottomSheet(isAlreadyOnList: _isOnList, card: currentPokemon as PokemonCard, saveCard: saveCardOnList, removeCard: () {},);
         });
   }
 
@@ -131,54 +139,92 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        elevation: 5.0,
+        backgroundColor: Colors.black,
+        onPressed: () {
+          showBottomSheet();
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        focusElevation: 10.0,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(50)),),
+          child: !_isOnList ? const Icon(
+            Symbols.save_rounded,
+            color: Colors.white,
+            size: 30,
+          ) : const Icon(Symbols.edit_sharp, color: Colors.white,),
+        ),
+      ),
       extendBodyBehindAppBar: true,
       extendBody: true,
-      body: GestureDetector(
-        onTap: () => {
-          setState(() {
-            _animate = !_animate;
-          })
-        },
-        child: Container(
-            decoration: BoxDecoration(
-                color: Colors.black,
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(widget.card.image ?? ''))),
-            width: double.infinity,
-            height: double.infinity,
-            child: BackdropFilter(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+            style: IconButton.styleFrom(
+                iconSize: 40.0, fixedSize: const Size(40.0, 40.0)),
+            color: Colors.white,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(
+              Icons.chevron_left,
+              color: Colors.white,
+              size: 30.0,
+            )),
+        leadingWidth: 30.0,
+      ),
+      body: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: widget.card.image ?? '',
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                  color: Colors.black,
+                  gradient: LinearGradient(
+                      begin: FractionalOffset.topCenter,
+                      end: FractionalOffset.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black,
+                      ],
+                      stops: [
+                        0.2,
+                        0.0
+                      ])),
+            ),
+            BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                ),
-                child: SafeArea(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      TopBar(
-                          disableMoreOptions: !_isOnList,
-                          animate: _animate,
-                          size: size,
-                          moreOptionsFn: showBottomSheet),
-                      CardWidget(
-                        size: size,
-                        widget: widget,
-                      ),
-                      BottomBar(
-                        size: size,
-                        pokemon: currentPokemon,
-                        animate: _animate,
-                        isAlreadyOnList: _isOnList,
-                        saveNewPokemon: saveCardOnList,
-                        removePokemon: removeCardFromList,
-                      )
-                    ],
+              child: SafeArea(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: InkWell(
+                    onTap: () {},
+                    child: CardWidget(
+                      size: size,
+                      widget: widget,
+                    ),
                   ),
                 ),
               ),
-            )),
+            )
+          ],
+        ),
       ),
     );
   }
