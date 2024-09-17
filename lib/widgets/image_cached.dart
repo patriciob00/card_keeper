@@ -25,7 +25,7 @@ class ImageCached extends StatelessWidget {
       placeholderFadeInDuration: const Duration(milliseconds: 150),
       placeholder: (_, __) => Image.asset(
         placeholderURL!,
-        fit: BoxFit.contain,
+        fit: BoxFit.fill,
         filterQuality: FilterQuality.high,
       ),
       errorWidget: (_, __, ___) => errorWidget ?? const Icon(

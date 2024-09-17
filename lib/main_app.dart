@@ -21,7 +21,7 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
         title: 'PokéDeck',
         debugShowCheckedModeBanner: false,
-        home: MainPage());
+        home: SafeArea(child: MainPage()));
   }
 }
 
@@ -79,6 +79,7 @@ class MainPageState extends ConsumerState<MainPage> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         extendBody: true,
+        resizeToAvoidBottomInset: true,
         body: _setScreen(),
         bottomNavigationBar: BottomTabs(currentIdx: currentIdx, onTap: _onItemTapped),
         );

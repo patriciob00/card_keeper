@@ -1,6 +1,7 @@
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
+import 'package:card_keeper/widgets/card_with_ripple.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
@@ -37,26 +38,36 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     Navigator.pop(context);
   }
 
-  void cardLongPress(PokemonCard card) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => Scaffold(
-              extendBody: true,
-              extendBodyBehindAppBar: true,
-              backgroundColor: Colors.black..withOpacity(0.3),
-              body: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Column(
-                  children: [
-                    HeroWidget(
-                      tag: card.image ?? '',
-                      child: ImageCached(imageURL: card.image ?? ''),
-                    ),
-                  ],
-                ),
-              ),
-            )));
+  List<Widget> getBadges(PokemonCard card) {
+    List<Widget> list = [];
+
+    list.add(BadgeCustom(
+        child: Text(
+      card.cardQuantity.toString(),
+      style: const TextStyle(
+          fontSize: 12.0, color: Colors.black, fontWeight: FontWeight.bold),
+    )));
+
+    if (card.isAvailableForSale!) {
+      list.add(const BadgeCustom(
+        child: Icon(
+          Symbols.attach_money_sharp,
+          color: Colors.green,
+          size: 12.0,
+        ),
+      ));
+    }
+
+    if (card.isAvailableForExchange!) {
+      list.add(const BadgeCustom(
+        child: Icon(
+          Symbols.sync_alt_sharp,
+          color: Colors.orange,
+          size: 12.0,
+        ),
+      ));
+    }
+    return list;
   }
 
   Future<void> cardLongPressDialog(PokemonCard card) async {
@@ -79,31 +90,25 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                         color: Colors.transparent,
                       ),
                       child: HeroWidget(
-                        tag: card.image ?? '',
-                        child: ImageCached(imageURL: card.image ?? ''),
-                      ),
+                          tag: card.image ?? '',
+                          child: ImageCached(imageURL: card.image ?? '')),
                     ),
-                    Container(
-                      width: size.width * 0.50,
-                      margin: const EdgeInsets.only(top: 20),
-                      child: OutlinedButton(
-                          onPressed: () {
-                            deleteCard(card);
-                          },
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                  padding: EdgeInsets.only(right: 20),
-                                  child: Icon(
-                                    Symbols.delete,
-                                    color: Colors.white,
-                                  )),
-                              Text('Remover card',
-                                  style: TextStyle(color: Colors.white)),
-                            ],
-                          )),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 30.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton.filled(
+                            iconSize: 28.0,
+                            onPressed: () {
+                              deleteCard(card);
+                            },
+                            icon: const Icon(Symbols.delete),
+                          ),
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -116,7 +121,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     double appBarheight = Scaffold.of(context).appBarMaxHeight ?? 60;
     double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
 
-    final cardsList = ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider);
+    final cardsList =
+        ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider);
 
     return ContainerWithBg(
       child: Scaffold(
@@ -175,32 +181,66 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 15,
                       crossAxisSpacing: 15,
-                      childAspectRatio: 2 / 3,
+                      childAspectRatio: 2 / 2.8,
                     ),
                     itemCount: cardsList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        onLongPress: () =>
-                            cardLongPressDialog(cardsList[index]),
-                        child: HeroWidget(
-                            tag: cardsList[index].image ?? '',
-                            child: Badge.count(
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
-                              offset: const Offset(-2, -8),
-                              largeSize: 20,
-                              isLabelVisible:
-                                  cardsList[index].cardQuantity! >= 1,
-                              count: cardsList[index].cardQuantity ?? 0,
-                              child: ImageCached(
-                                  imageURL: cardsList[index].image ?? ''),
-                            )),
-                      );
+                      return Stack(clipBehavior: Clip.none, children: [
+                        CardWithRipple(
+                          tag: cardsList[index].image ?? '',
+                          imageURL: cardsList[index].image ?? '',
+                          onLongPress: () =>
+                              cardLongPressDialog(cardsList[index]),
+                        ),
+                        Positioned(
+                            top: -12,
+                            right: 3,
+                            child: Row(
+                              textDirection: TextDirection.rtl,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: getBadges(cardsList[index]),
+                            ))
+                      ]);
                     },
                   ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class BadgeCustom extends StatelessWidget {
+  const BadgeCustom({
+    super.key,
+    this.backgroundColor = Colors.white,
+    required this.child,
+  });
+
+  final Color backgroundColor;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      width: 16,
+      height: 16,
+      margin: const EdgeInsets.only(right: 5),
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              spreadRadius: 4,
+              blurRadius: 4,
+              offset: const Offset(0, 3), // changes position of shadow
+            ),
+          ],
+          color: backgroundColor,
+          borderRadius: const BorderRadius.all(Radius.circular(16))),
+      child: child,
     );
   }
 }

@@ -7,11 +7,12 @@ class CardWidget extends StatefulWidget {
   const CardWidget({
     super.key,
     required this.size,
-    required this.widget,
+    required this.widget, this.onTap,
   });
 
   final Size size;
   final SearchCardDetailPage widget;
+  final Function? onTap;
 
 
   @override
@@ -26,6 +27,17 @@ class _CardWidgetState extends State<CardWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final imageWithRipple = Stack(children: [
+      ImageCached(imageURL: widget.widget.card.image ?? ''),
+      Positioned.fill(
+          child: Material(
+              borderRadius: const BorderRadius.all(Radius.circular(16)),
+              color: Colors.transparent,
+              child: InkWell(
+                  splashColor: Colors.white24,
+                  onTap: () =>
+                      widget.onTap != null ? widget.onTap!() : null))),
+    ]);
     return Container(
       width: widget.size.width * 0.90,
       decoration: const BoxDecoration(
@@ -33,7 +45,7 @@ class _CardWidgetState extends State<CardWidget> with TickerProviderStateMixin {
       ),
       child: HeroWidget(
         tag: widget.widget.card.image ?? '',
-        child: ImageCached(imageURL: widget.widget.card.image ?? ''),
+        child: widget.onTap != null ? imageWithRipple : ImageCached(imageURL: widget.widget.card.image ?? ''),
       ),
     );
   }

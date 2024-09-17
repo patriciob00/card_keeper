@@ -92,40 +92,39 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10, top: 20),
-      child: SizedBox(
-        width: size.width,
-        height: size.height * 0.24,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-              child: Column(
-                children: [
-                  CardQuantityOption(
-                    quantity: cardQuantity,
-                    remove: () => removeQuantity(),
-                    add: () => addQuantity(),
-                  ),
-                  AvailableForSaleInfo(
-                    setIsAvailable: onChangeIsAvailableForSale,
-                    isAvailable: isAvailableForSale,
-                  ),
-                  AvailableForTrade(
-                    isAvailable: isAvailableForTrade,
-                    setIsAvailable: onChangeIsAvailableForTrade,
-                  ),
-                  ActionsRow(
-                      widget: widget,
-                      cardQuantity: cardQuantity,
-                      isAvailableForSale: isAvailableForSale,
-                      isAvailableForTrade: isAvailableForTrade)
-                ],
-              ),
-            )
-          ],
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10, top: 10),
+        child: Wrap(
+          children: [Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                child: Column(
+                  children: [
+                    CardQuantityOption(
+                      quantity: cardQuantity,
+                      remove: () => removeQuantity(),
+                      add: () => addQuantity(),
+                    ),
+                    AvailableForSaleInfo(
+                      setIsAvailable: onChangeIsAvailableForSale,
+                      isAvailable: isAvailableForSale,
+                    ),
+                    AvailableForTrade(
+                      isAvailable: isAvailableForTrade,
+                      setIsAvailable: onChangeIsAvailableForTrade,
+                    ),
+                    ActionsRow(
+                        widget: widget,
+                        cardQuantity: cardQuantity,
+                        isAvailableForSale: isAvailableForSale,
+                        isAvailableForTrade: isAvailableForTrade)
+                  ],
+                ),
+              )
+            ],
+          )],
         ),
       ),
     );
@@ -279,8 +278,8 @@ class AvailableForTrade extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: 5),
                 child: Icon(
-                  Symbols.currency_exchange_sharp,
-                  color: Colors.black,
+                  Symbols.sync_alt_sharp,
+                  color: Colors.orange,
                 ),
               ),
               Text(
@@ -332,8 +331,8 @@ class AvailableForSaleInfo extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: 5),
                 child: Icon(
-                  Symbols.paid_sharp,
-                  color: Colors.black,
+                  Symbols.attach_money_sharp,
+                  color: Colors.green,
                 ),
               ),
               Text(
@@ -379,34 +378,35 @@ class ActionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
+      padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
       child: Row(
         children: [
           ElevatedButton(
+
               style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen),
+                  ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen,),
               onPressed: () {
                 widget.saveCard(
                     cardQuantity, isAvailableForSale, isAvailableForTrade);
                 Navigator.pop(context);
               },
               child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Symbols.save_sharp,
-                    color: Colors.white,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10),
-                    child: Text(
-                      'Salvar',
-                      style: TextStyle(color: Colors.white),
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Symbols.save_sharp,
+                      color: Colors.white,
                     ),
-                  )
-                ],
-              )),
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Text(
+                        'Salvar',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                )),
               const Spacer(),
           widget.isAlreadyOnList
               ? ElevatedButton(

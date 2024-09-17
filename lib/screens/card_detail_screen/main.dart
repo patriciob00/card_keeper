@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/card_widget.dart';
+import 'package:card_keeper/screens/card_detail_screen/components/flip_card.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/modal_bottom_sheet.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:flutter/material.dart';
@@ -125,6 +126,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
   void showBottomSheet() {
     showModalBottomSheet(
+        useSafeArea: true,
         backgroundColor: Colors.white,
         clipBehavior: Clip.hardEdge,
         context: context,
@@ -137,93 +139,98 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        elevation: 5.0,
-        backgroundColor: Colors.black,
-        onPressed: () {
-          showBottomSheet();
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        focusElevation: 10.0,
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(50)),),
-          child: !_isOnList ? const Icon(
-            Symbols.save_rounded,
-            color: Colors.white,
-            size: 30,
-          ) : const Icon(Symbols.edit_sharp, color: Colors.white,),
-        ),
-      ),
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-            style: IconButton.styleFrom(
-                iconSize: 40.0, fixedSize: const Size(40.0, 40.0)),
-            color: Colors.white,
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(
-              Icons.chevron_left,
-              color: Colors.white,
-              size: 30.0,
-            )),
-        leadingWidth: 30.0,
-      ),
-      body: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Stack(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: CachedNetworkImage(
-                imageUrl: widget.card.image ?? '',
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              height: double.infinity,
+    // final size = MediaQuery.of(context).size;
+    return SafeArea(
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          elevation: 5.0,
+          backgroundColor: Colors.black,
+          onPressed: () {
+            showBottomSheet();
+          },
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          focusElevation: 10.0,
+          child: SafeArea(
+            maintainBottomViewPadding: true,
+            bottom: true,
+            child: Container(
+              width: 60,
+              height: 60,
               decoration: const BoxDecoration(
-                  color: Colors.black,
-                  gradient: LinearGradient(
-                      begin: FractionalOffset.topCenter,
-                      end: FractionalOffset.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black,
-                      ],
-                      stops: [
-                        0.2,
-                        0.0
-                      ])),
+                  borderRadius: BorderRadius.all(Radius.circular(50)),),
+              child: !_isOnList ? const Icon(
+                Symbols.save_rounded,
+                color: Colors.white,
+                size: 30,
+              ) : const Icon(Symbols.edit_sharp, color: Colors.white,),
             ),
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-              child: SafeArea(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: InkWell(
-                    onTap: () {},
-                    child: CardWidget(
-                      size: size,
-                      widget: widget,
-                    ),
-                  ),
+          ),
+        ),
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+              style: IconButton.styleFrom(
+                  iconSize: 40.0, fixedSize: const Size(40.0, 40.0)),
+              color: Colors.white,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 30.0,
+              )),
+          leadingWidth: 30.0,
+        ),
+        body: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Stack(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: CachedNetworkImage(
+                  imageUrl: widget.card.image ?? '',
+                  fit: BoxFit.cover,
+                  filterQuality: FilterQuality.high,
                 ),
               ),
-            )
-          ],
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(
+                    color: Colors.black,
+                    gradient: LinearGradient(
+                        begin: FractionalOffset.topCenter,
+                        end: FractionalOffset.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black,
+                        ],
+                        stops: [
+                          0.2,
+                          0.0
+                        ])),
+              ),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                child: SafeArea(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: FlipCard(widget: widget),
+                    // child: CardWidget(
+                    //     onTap: () {},
+                    //     size: size,
+                    //     widget: widget,
+                    //   ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
