@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/screens/card_detail_screen/components/card_widget.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/flip_card.dart';
 import 'package:card_keeper/screens/card_detail_screen/components/modal_bottom_sheet.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
@@ -167,7 +166,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
           ),
         ),
         extendBodyBehindAppBar: true,
-        extendBody: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: IconButton(
@@ -217,17 +215,10 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
               ),
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-                child: SafeArea(
-                  child: Align(
+                child: Align(
                     alignment: Alignment.center,
-                    child: FlipCard(widget: widget),
-                    // child: CardWidget(
-                    //     onTap: () {},
-                    //     size: size,
-                    //     widget: widget,
-                    //   ),
+                    child: FlipCard(widget: widget, currentPokemon: currentPokemon, isAlreadyOnList: _isOnList,),
                   ),
-                ),
               )
             ],
           ),

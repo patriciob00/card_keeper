@@ -27,6 +27,10 @@ class PokemonCardsControler {
 
     if (pokemonCard != null) { 
       pokemonCard.image = '${pokemonCard.image}/high.webp';
+
+      if(pokemonCard.pokemonCardSet?.logo != null) {
+        pokemonCard.pokemonCardSet!.logo = '${pokemonCard.pokemonCardSet?.logo}.webp';
+      }
       ref.read(pokemonCardsSearchProvider.notifier).addCard(pokemonCard);
       return pokemonCard;  
     }

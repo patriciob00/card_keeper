@@ -233,9 +233,9 @@ class BadgeCustom extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.5),
-              spreadRadius: 4,
-              blurRadius: 4,
-              offset: const Offset(0, 3), // changes position of shadow
+              spreadRadius: 3,
+              blurRadius: 3,
+              offset: const Offset(0, 1), // changes position of shadow
             ),
           ],
           color: backgroundColor,
