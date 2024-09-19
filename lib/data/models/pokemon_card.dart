@@ -13,6 +13,7 @@ class PokemonCard {
     int? cardQuantity;
     bool? isAvailableForSale;
     bool? isAvailableForExchange;
+    DateTime? addedAt;
     String? id;
     String? illustrator;
     String? image;
@@ -37,6 +38,7 @@ class PokemonCard {
         this.cardQuantity,
         this.isAvailableForSale,
         this.isAvailableForExchange,
+        this.addedAt,
         this.id,
         this.illustrator,
         this.image,
@@ -62,6 +64,7 @@ class PokemonCard {
         cardQuantity: json["card_quantity"],
         isAvailableForSale: json["isAvailableForSale"],
         isAvailableForExchange: json["isAvailableForExchange"],
+        addedAt: json["addedAt"] == null ? DateTime.now() : DateTime.parse(json["addedAt"]),
         id: json["id"],
         illustrator: json["illustrator"],
         image: json["image"],
@@ -87,6 +90,7 @@ class PokemonCard {
         "card_quantity": cardQuantity,
         "isAvailableForSale": isAvailableForSale,
         "isAvailableForExchange": isAvailableForExchange,
+        "addedAt": addedAt == null ? DateTime.now().toIso8601String() : addedAt?.toIso8601String(),
         "id": id,
         "illustrator": illustrator,
         "image": image,

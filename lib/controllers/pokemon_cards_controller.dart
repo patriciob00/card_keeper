@@ -1,8 +1,11 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
+import 'package:card_keeper/data/models/search_history_item.dart';
 import 'package:card_keeper/data/service/poke_card_service.dart';
+import 'package:card_keeper/repositories/card_search_history.dart';
 import 'package:card_keeper/repositories/pokemon_card_search_cache.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
-import 'package:card_keeper/storage/pokemon-card-storage.dart';
+import 'package:card_keeper/storage/pokemon_card_storage.dart';
+import 'package:card_keeper/storage/search_history_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PokemonCardsControler {
@@ -10,6 +13,7 @@ class PokemonCardsControler {
   const PokemonCardsControler({required this.ref});
 
   static final PokemonCardStorage _pkmnStorage = PokemonCardStorage();
+  static final SearchHistoryStorage _searchStorage = SearchHistoryStorage();
 
   Future<PokemonCard?> getCard(String cardId) async {
     final foundOnList =
@@ -68,5 +72,11 @@ class PokemonCardsControler {
     List<PokemonCard> cards = await _pkmnStorage.getPokemonCardList();
 
     await ref.read(pokemonCardsRepositoryProvider.notifier).addList(cards);
+  }
+
+  Future<void> initializeSearchHistoryFromDb() async {
+    List<SearchHistoryItem> logsList = await _searchStorage.getSearchHistoryList();
+
+    await ref.read(cardSearchHistoryProvider.notifier).addList(logsList);
   }
 }

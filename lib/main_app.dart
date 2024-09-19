@@ -1,12 +1,13 @@
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
+import 'package:card_keeper/controllers/search_history_controller.dart';
 import 'package:card_keeper/screens/cards_list_screen/main.dart';
 import 'package:card_keeper/screens/deck_list_screen/main.dart';
 import 'package:card_keeper/screens/search_screen/main.dart';
 import 'package:card_keeper/widgets/bottom_tabs.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -38,6 +39,8 @@ class MainPageState extends ConsumerState<MainPage> {
 
  late PokemonCardsControler _controller;
 
+ late SearchHistoryController _searchController;
+
  void _onItemTapped(int idx) {
   setState(() {
     currentIdx = idx;
@@ -61,8 +64,13 @@ class MainPageState extends ConsumerState<MainPage> {
 
  void initializeDb() async {
     await _controller.initializeCardsListFromDb();
+    await _searchController.initializeSearchHistoryFromDb();
 
     FlutterNativeSplash.remove();
+ }
+
+ void initializeINTL() async {
+    initializeDateFormatting('pt_BR');
  }
 
  @override
@@ -70,7 +78,10 @@ class MainPageState extends ConsumerState<MainPage> {
     super.initState();
     _controller = PokemonCardsControler(ref: ref);
 
+    _searchController = SearchHistoryController(ref: ref);
+
     initializeDb();
+    initializeINTL();
   }
 
 

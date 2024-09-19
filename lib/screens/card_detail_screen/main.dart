@@ -76,6 +76,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     if(_isOnList) {
       _detailController.updateCard(newCard);
     } else {
+      newCard.addedAt = DateTime.now();
       _detailController.saveCard(newCard);
     }
 
