@@ -35,7 +35,7 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class MainPageState extends ConsumerState<MainPage> {
- int currentIdx = 0;
+ int currentIdx = 2;
 
  late PokemonCardsControler _controller;
 
