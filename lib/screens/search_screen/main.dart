@@ -56,7 +56,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void useSearchLog(SearchHistoryItem log) {
-    print('set state: ${log.results!.length.toString()}');
     setState(() {
       cardList = log.results;  
     });

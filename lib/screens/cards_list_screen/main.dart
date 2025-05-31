@@ -27,10 +27,18 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
   late PokemonCardsControler _pkmnCardsController;
 
+  bool showListGrid = true;
+
   @override
   void initState() {
     super.initState();
     _pkmnCardsController = PokemonCardsControler(ref: ref);
+  }
+
+  void changeListViewType() {
+    setState(() {
+      showListGrid = !showListGrid;
+    });
   }
 
   void deleteCard(PokemonCard card) {
@@ -136,6 +144,9 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                 fontSize: 26.0),
           ),
           actionsWidget: [
+            IconButton(onPressed: () {
+              changeListViewType();
+            }, icon:  Icon(showListGrid ? Symbols.view_cozy_rounded : Symbols.lists_rounded, color: Colors.white,)),
             IconButton(
                 onPressed: () {},
                 icon: const Icon(

@@ -1,3 +1,4 @@
+import 'package:card_keeper/screens/create_deck_screen/main.dart';
 import 'package:card_keeper/widgets/top_bar.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:flutter/material.dart';
@@ -56,9 +57,9 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.4),
-                                  spreadRadius: 4,
-                                  blurRadius: 4,
-                                  offset: const Offset(-4, 4),
+                                  spreadRadius: 2,
+                                  blurRadius: 2,
+                                  offset: const Offset(-2, 2),
                                 ),
                               ]),
                           child: const Text(
@@ -98,7 +99,19 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 85.0),
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 400),
+          reverseTransitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: ((context, animation, secondaryAnimation) {
+            final curvedAnimation = CurvedAnimation(
+                parent: animation, curve: const Interval(0, 0.5));
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: const CreateDeckScreen(),
+            );
+          })));
+          },
           elevation: 0.0,
           backgroundColor: Colors.transparent,
           shape:
@@ -115,9 +128,9 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.4),
-                    spreadRadius: 4,
-                    blurRadius: 4,
-                    offset: const Offset(-4, 4),
+                    spreadRadius: 2,
+                    blurRadius: 2,
+                    offset: const Offset(-2, 2),
                   ),
                 ],
                 borderRadius: const BorderRadius.all(Radius.circular(50)),

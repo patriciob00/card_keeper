@@ -35,7 +35,7 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class MainPageState extends ConsumerState<MainPage> {
- int currentIdx = 2;
+ int currentIdx = 0;
 
  late PokemonCardsControler _controller;
 
@@ -66,6 +66,15 @@ class MainPageState extends ConsumerState<MainPage> {
     await _controller.initializeCardsListFromDb();
     await _searchController.initializeSearchHistoryFromDb();
 
+
+    int listLenght = _controller.getCardsList().length;
+
+    if(listLenght > 0) {
+      setState(() {
+        currentIdx = 1;
+      });
+    }
+
     FlutterNativeSplash.remove();
  }
 
@@ -82,6 +91,8 @@ class MainPageState extends ConsumerState<MainPage> {
 
     initializeDb();
     initializeINTL();
+
+
   }
 
 

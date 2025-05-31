@@ -9,7 +9,6 @@ class SearchHistoryStorage {
   Future<void> saveSearchHistoryItem(SearchHistoryItem log) async {
     List<SearchHistoryItem> logsList = await getSearchHistoryList();
 
-    print('log: $log');
     if(logsList.length >= 4) {
       var aux = [...logsList];
 
