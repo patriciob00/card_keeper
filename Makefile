@@ -1,30 +1,35 @@
-# Makefile for deploying the Flutter web projects to GitHub
+# Makefile for deploying a Flutter Web project to GitHub Pages
 
-BASE_HREF = /$(OUTPUT)/
-# Replace this with your GitHub username
-GITHUB_USER = patriciob00
-GITHUB_REPO = git@github.com-personal:$(GITHUB_USER)/$(OUTPUT).git
-BUILD_VERSION := $(shell grep 'version:' pubspec.yaml | awk '{print $$2}')
+# Usage:
+#   make deploy OUTPUT=my_repo_name
 
-# Deploy the Flutter web project to GitHub
+# GitHub username
+GITHUB_USER := patriciob00
+
+# GitHub repo via SSH (used for pushing)
+GITHUB_REPO := git@github.com-personal:$(GITHUB_USER)/$(OUTPUT).git
+
+# Extract version from pubspec.yaml
+BUILD_VERSION := $(shell grep '^version:' pubspec.yaml | awk '{print $$2}')
+
+# Base path for GitHub Pages hosting
+BASE_HREF := /$(OUTPUT)/
+
+.PHONY: deploy
+
 deploy:
 ifndef OUTPUT
-  $(error OUTPUT is not set. Usage: make deploy OUTPUT=<output_repo_name>)
+	$(error ❌ OUTPUT is not set. Usage: make deploy OUTPUT=<repo_name>)
 endif
-
-	@echo "Clean existing repository"
+	@echo "🧼 Cleaning project..."
 	flutter clean
-
-	@echo "Getting packages..."
+	@echo "📦 Getting dependencies..."
 	flutter pub get
-
-	@echo "Generating the web folder..."
-	flutter create --org com.pkm . --platform web
-
-	@echo "Building for web..."
-	flutter build web --web-renderer html --base-href $(BASE_HREF) --release 
-
-	@echo "Deploying to git repository"
+	@echo "🛠️  Ensuring web platform is enabled..."
+	flutter config --enable-web
+	@echo "🚧 Building web project..."
+	flutter build web --base-href=$(BASE_HREF) --release
+	@echo "🚀 Preparing GitHub Pages deployment..."
 	cd build/web && \
 	git init && \
 	git add . && \
@@ -32,8 +37,6 @@ endif
 	git branch -M main && \
 	git remote add origin $(GITHUB_REPO) && \
 	git push -u -f origin main
-
-	@echo "✅ Finished deploy: $(GITHUB_REPO)"
-	@echo "🚀 Flutter web URL: https://$(GITHUB_USER).github.io/$(OUTPUT)/"
-
-.PHONY: deploy
+	@echo ""
+	@echo "✅ Deployment finished"
+	@echo "🌐 URL: https://$(GITHUB_USER).github.io/$(OUTPUT)/"
