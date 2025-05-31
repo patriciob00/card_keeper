@@ -36,7 +36,6 @@ class SearchCardsList extends ConsumerWidget {
               .firstWhereOrNull((c) => c.id == card.id);
           return GestureDetector(
               onTap: () {
-                debugPrint('Carta clicada: ${card.name}');
                 showAddToDeckBottomSheet(
                   context: context,
                   ref: ref,

@@ -1,3 +1,4 @@
+import 'package:card_keeper/controllers/deck_controller.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/controllers/search_history_controller.dart';
 import 'package:card_keeper/screens/cards_list_screen/main.dart';
@@ -27,7 +28,8 @@ class MainApp extends StatelessWidget {
 }
 
 class MainPage extends ConsumerStatefulWidget {
-  const MainPage({super.key});
+  final int initialIndex;
+  const MainPage({super.key, this.initialIndex = 0});
 
   @override
   ConsumerState<MainPage> createState() => MainPageState();
@@ -35,11 +37,13 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class MainPageState extends ConsumerState<MainPage> {
- int currentIdx = 0;
+ late int currentIdx = 0;
 
  late PokemonCardsControler _controller;
 
  late SearchHistoryController _searchController;
+
+ late DeckController _deckController;
 
  void _onItemTapped(int idx) {
   setState(() {
@@ -65,11 +69,13 @@ class MainPageState extends ConsumerState<MainPage> {
  void initializeDb() async {
     await _controller.initializeCardsListFromDb();
     await _searchController.initializeSearchHistoryFromDb();
+    await _deckController.initializeDeckListFromDb(); // <-- aqui
+
 
 
     int listLenght = _controller.getCardsList().length;
 
-    if(listLenght > 0) {
+    if(widget.initialIndex == 0 && listLenght > 0) {
       setState(() {
         currentIdx = 1;
       });
@@ -85,9 +91,13 @@ class MainPageState extends ConsumerState<MainPage> {
  @override
   void initState() {
     super.initState();
+
+    currentIdx = widget.initialIndex;
     _controller = PokemonCardsControler(ref: ref);
 
     _searchController = SearchHistoryController(ref: ref);
+
+    _deckController = DeckController(ref: ref);
 
     initializeDb();
     initializeINTL();

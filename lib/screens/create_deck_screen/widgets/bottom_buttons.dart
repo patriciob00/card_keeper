@@ -1,83 +1,133 @@
-// ignore_for_file: avoid_unnecessary_containers, sized_box_for_whitespace
-
+import 'package:card_keeper/controllers/deck_controller.dart';
+import 'package:card_keeper/data/models/deck_model.dart';
+import 'package:card_keeper/main_app.dart';
+import 'package:card_keeper/repositories/deck_cards_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class BottomButtons extends StatelessWidget {
+class BottomButtons extends ConsumerWidget {
   final PageController pageController;
   final double pages;
   final double currentPage;
   final bool? disabledNext;
+  final TextEditingController? nameController;
 
-  const BottomButtons(
-      {super.key, required this.pageController, required this.pages, required this.currentPage, this.disabledNext});
+  const BottomButtons({
+    super.key,
+    required this.pageController,
+    required this.pages,
+    required this.currentPage,
+    this.disabledNext,
+    this.nameController,
+  });
+
+  ButtonStyle getButtonStyle({
+    required bool isDisabled,
+    required bool isFirstScreen,
+  }) {
+    return ElevatedButton.styleFrom(
+      disabledBackgroundColor: Colors.black.withAlpha(77),
+      disabledForegroundColor: Colors.deepPurpleAccent.withAlpha(77),
+      backgroundColor:
+          isDisabled ? Colors.black.withAlpha(77) : Colors.deepPurpleAccent,
+      foregroundColor: isDisabled
+          ? Colors.deepPurpleAccent.withAlpha(77)
+          : Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      shape: const CircleBorder(
+        side: BorderSide(color: Colors.deepPurpleAccent),
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bool isFirstScreen = currentPage == 0;
-    final bool isLastScreen = currentPage == pages -1;
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              isFirstScreen
-                  ? null
-                  : pageController.previousPage(
+    final bool isLastScreen = currentPage == pages - 1;
+    final deckCards = ref.watch(deckCardsProvider);
+    final bool isDeckEmpty = deckCards.isEmpty;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: isFirstScreen
+              ? null
+              : () => pageController.previousPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.ease,
+                  ),
+          style: getButtonStyle(
+              isDisabled: isFirstScreen, isFirstScreen: isFirstScreen),
+          child: const SizedBox(
+            width: 50,
+            height: 50,
+            child: Icon(Icons.arrow_back, color: Colors.white),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: disabledNext!
+              ? null
+              : () async {
+                  if (isLastScreen) {
+                    final name = nameController?.text.trim() ?? '';
+                    debugPrint('to aqui irmão');
+                    debugPrint('Deck name: "$name"');
+                    if (name.isEmpty || isDeckEmpty) return;
+                    debugPrint('não to vazio irmão');
+                    final deck = DeckModel(
+                      id: UniqueKey().toString(),
+                      name: name,
+                      cards: deckCards,
+                      createdAt: DateTime.now(),
+                    );
+
+                    final controller = DeckController(ref: ref);
+                    await controller.saveDeck(deck);
+                    ref.read(deckCardsProvider.notifier).clear();
+
+                    if (!context.mounted) return;
+                    debugPrint('!context.mounted passei daqui');
+
+                    // Mostra Snackbar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Deck "$name" criado com sucesso!'),
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+
+                    debugPrint('vou pra tela inicial irmão');
+
+                    // Navega para tela inicial
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const MainPage(initialIndex: 2),
+                      ),
+                      (route) => false,
+                    );
+                  } else {
+                    debugPrint('ihh, cai no else');
+                    pageController.nextPage(
                       duration: const Duration(milliseconds: 500),
-                      curve: Curves.ease);
-            },
-            style: ElevatedButton.styleFrom(
-                disabledBackgroundColor: Colors.black.withOpacity(0.3),
-                disabledForegroundColor:
-                    Colors.deepPurpleAccent.withOpacity(0.3),
-                backgroundColor: isFirstScreen ? Colors.black.withOpacity(0.3) : Colors.deepPurpleAccent,
-                foregroundColor: isFirstScreen ? Colors.deepPurpleAccent.withOpacity(0.3) : Colors.transparent,
-                elevation: 0,
-                shadowColor: Colors.transparent,
-                shape: const CircleBorder(
-                    side: BorderSide(
-                  color: Colors.deepPurpleAccent,
-                ))),
-            child: Container(
-              width: 50,
-              height: 50,
-              child: Icon(
-                Icons.arrow_back,
-                color: isFirstScreen ? Colors.deepPurpleAccent : Colors.white,
-              ),
+                      curve: Curves.ease,
+                    );
+                  }
+                },
+          style:
+              getButtonStyle(isDisabled: disabledNext!, isFirstScreen: false),
+          child: SizedBox(
+            width: 50,
+            height: 50,
+            child: Icon(
+              isLastScreen ? Symbols.save : Icons.arrow_forward,
+              color: disabledNext! ? Colors.deepPurpleAccent : Colors.white,
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-            disabledNext! ? null :
-              pageController.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.ease);
-            },
-            style: ElevatedButton.styleFrom(
-                disabledBackgroundColor: Colors.black.withOpacity(0.3),
-                disabledForegroundColor:
-                    Colors.deepPurpleAccent.withOpacity(0.3),
-                backgroundColor: disabledNext! ? Colors.black.withOpacity(0.3) : Colors.deepPurpleAccent,
-                foregroundColor: disabledNext! ? Colors.deepPurpleAccent.withOpacity(0.3) : Colors.transparent,
-                elevation: 0,
-                shadowColor: Colors.transparent,
-                shape: const CircleBorder(
-                  side: BorderSide(
-                    color: Colors.deepPurpleAccent,
-                  )  
-                )),
-            child: Container(
-              width: 50,
-              height: 50,
-              child: Icon(
-                isLastScreen ? Symbols.save : Icons.arrow_forward,
-                color: disabledNext! ? Colors.deepPurpleAccent : Colors.white,
-              ),
-            ),
-          )
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

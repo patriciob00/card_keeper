@@ -165,6 +165,7 @@ class _CreateDeckScreenState extends ConsumerState<CreateDeckScreen> {
               )),
               BottomButtons(
                 pageController: _pageController,
+                nameController: nameTextFieldCtrl,
                 pages: 2.0,
                 currentPage: _currentPage,
                 disabledNext: disableNext,

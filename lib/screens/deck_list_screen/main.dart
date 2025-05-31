@@ -1,4 +1,8 @@
+import 'package:card_keeper/controllers/deck_controller.dart';
+import 'package:card_keeper/data/models/deck_model.dart';
+import 'package:card_keeper/repositories/deck_repository.dart';
 import 'package:card_keeper/screens/create_deck_screen/main.dart';
+import 'package:card_keeper/screens/deck_list_screen/widgets/deck_grid_item.dart';
 import 'package:card_keeper/widgets/top_bar.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +24,10 @@ class DeckListScreen extends ConsumerStatefulWidget {
 }
 
 class _DeckListScreenState extends ConsumerState<DeckListScreen> {
-  final List<String> decks = [];
-
   @override
   Widget build(BuildContext context) {
+    final decks = ref.watch(deckRepositoryProvider);
+    final sortedDecks = [...decks]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return ContainerWithBg(
         child: Scaffold(
       appBar: TopBar(
@@ -89,11 +93,31 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
               ],
             )
           : SafeArea(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: const BoxDecoration(color: Colors.transparent),
-                child: const SizedBox(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 12.0),
+                child: GridView.builder(
+                  itemCount: sortedDecks.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 24,
+                    childAspectRatio: 2 / 2.9,
+                  ),
+                  itemBuilder: (context, index) {
+                    final deck = sortedDecks[index];
+
+                    return DeckGridItem(
+                      deck: deck,
+                      onTap: () {
+                        // Navegar para detalhes do deck
+                      },
+                      onLongPress: () {
+                        showRemoveDeckDialog(context: context, ref: ref, deck: deck);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
       floatingActionButton: Padding(
@@ -101,16 +125,16 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
         child: FloatingActionButton(
           onPressed: () {
             Navigator.of(context).push(PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 400),
-          reverseTransitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: ((context, animation, secondaryAnimation) {
-            final curvedAnimation = CurvedAnimation(
-                parent: animation, curve: const Interval(0, 0.5));
-            return FadeTransition(
-              opacity: curvedAnimation,
-              child: const CreateDeckScreen(),
-            );
-          })));
+                transitionDuration: const Duration(milliseconds: 400),
+                reverseTransitionDuration: const Duration(milliseconds: 400),
+                pageBuilder: ((context, animation, secondaryAnimation) {
+                  final curvedAnimation = CurvedAnimation(
+                      parent: animation, curve: const Interval(0, 0.5));
+                  return FadeTransition(
+                    opacity: curvedAnimation,
+                    child: const CreateDeckScreen(),
+                  );
+                })));
           },
           elevation: 0.0,
           backgroundColor: Colors.transparent,
@@ -145,4 +169,63 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
       ),
     ));
   }
+}
+
+Future<void> showRemoveDeckDialog({
+  required BuildContext context,
+  required WidgetRef ref,
+  required DeckModel deck,
+}) async {
+  await showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) => GestureDetector(
+      onTap: () => Navigator.pop(ctx),
+      child: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(color: Colors.black.withOpacity(0.2)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Deseja remover esse deck?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            IconButton.filled(
+              iconSize: 28.0,
+              onPressed: () async {
+                final controller = DeckController(ref: ref);
+                await controller.removeDeck(deck);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Deck removido com sucesso!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Symbols.delete),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
