@@ -8,19 +8,23 @@ class CardWithRipple extends StatelessWidget {
       required this.tag,
       required this.imageURL,
       this.onTap,
-      this.onLongPress});
+      this.onLongPress,
+      this.showHoloEffect = false,
+    });
 
   final String tag;
   final String imageURL;
   final Function? onTap;
   final Function? onLongPress;
+  final bool? showHoloEffect;
+
 
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
       HeroWidget(
         tag: tag,
-        child: ImageCached(imageURL: imageURL),
+        child: ImageCached(imageURL: imageURL, showHoloEffect: showHoloEffect,),
       ),
       Positioned.fill(
           child: Material(

@@ -73,10 +73,7 @@ class BottomButtons extends ConsumerWidget {
               : () async {
                   if (isLastScreen) {
                     final name = nameController?.text.trim() ?? '';
-                    debugPrint('to aqui irmão');
-                    debugPrint('Deck name: "$name"');
                     if (name.isEmpty || isDeckEmpty) return;
-                    debugPrint('não to vazio irmão');
                     final deck = DeckModel(
                       id: UniqueKey().toString(),
                       name: name,
@@ -89,7 +86,6 @@ class BottomButtons extends ConsumerWidget {
                     ref.read(deckCardsProvider.notifier).clear();
 
                     if (!context.mounted) return;
-                    debugPrint('!context.mounted passei daqui');
 
                     // Mostra Snackbar
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -99,7 +95,6 @@ class BottomButtons extends ConsumerWidget {
                       ),
                     );
 
-                    debugPrint('vou pra tela inicial irmão');
 
                     // Navega para tela inicial
                     Navigator.of(context).pushAndRemoveUntil(
@@ -109,7 +104,6 @@ class BottomButtons extends ConsumerWidget {
                       (route) => false,
                     );
                   } else {
-                    debugPrint('ihh, cai no else');
                     pageController.nextPage(
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.ease,

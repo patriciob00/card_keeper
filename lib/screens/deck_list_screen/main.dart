@@ -2,6 +2,7 @@ import 'package:card_keeper/controllers/deck_controller.dart';
 import 'package:card_keeper/data/models/deck_model.dart';
 import 'package:card_keeper/repositories/deck_repository.dart';
 import 'package:card_keeper/screens/create_deck_screen/main.dart';
+import 'package:card_keeper/screens/deck_detail_screen/main.dart';
 import 'package:card_keeper/screens/deck_list_screen/widgets/deck_grid_item.dart';
 import 'package:card_keeper/widgets/top_bar.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
@@ -110,7 +111,11 @@ class _DeckListScreenState extends ConsumerState<DeckListScreen> {
                     return DeckGridItem(
                       deck: deck,
                       onTap: () {
-                        // Navegar para detalhes do deck
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => DeckDetailScreen(deck: deck),
+                          ),
+                        );
                       },
                       onLongPress: () {
                         showRemoveDeckDialog(context: context, ref: ref, deck: deck);

@@ -75,6 +75,10 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         ),
       ));
     }
+
+    list.add(const BadgeCustom(
+        child: Text('HOLO'),
+      ));
     return list;
   }
 
@@ -99,7 +103,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                       ),
                       child: HeroWidget(
                           tag: card.image ?? '',
-                          child: ImageCached(imageURL: card.image ?? '')),
+                          child: ImageCached(imageURL: card.image ?? '', showHoloEffect: true,)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 30.0),

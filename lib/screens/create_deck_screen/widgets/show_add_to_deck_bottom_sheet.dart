@@ -1,7 +1,7 @@
+import 'package:card_keeper/data/service/poke_card_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
-import 'package:card_keeper/extensions/card_list_item_extensions.dart';
 import 'package:card_keeper/repositories/deck_cards_notifier.dart';
 import 'package:collection/collection.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -11,9 +11,8 @@ void showAddToDeckBottomSheet({
   required WidgetRef ref,
   required CardListItem card,
 }) {
-  final deckCard = ref
-      .read(deckCardsProvider)
-      .firstWhereOrNull((c) => c.id == card.id);
+  final deckCard =
+      ref.read(deckCardsProvider).firstWhereOrNull((c) => c.id == card.id);
 
   int cardQuantity = deckCard?.deckRequiredQuantity ?? 1;
 
@@ -111,15 +110,44 @@ void showAddToDeckBottomSheet({
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          ref.read(deckCardsProvider.notifier).addCard(
-                                card.toPokemonCard(),
-                                cardQuantity,
+                        onPressed: () async {
+                          final pokeCardService = PokeCardService();
+                          // Mostra um loader se quiser
+                          final fullCard =
+                              await pokeCardService.getCardById(card.id!);
+
+                          if (fullCard != null) {
+                            fullCard.image = '${fullCard.image}/high.webp';
+
+                            if (fullCard.pokemonCardSet?.logo != null) {
+                              fullCard.pokemonCardSet!.logo =
+                                  '${fullCard.pokemonCardSet?.logo}.webp';
+                            }
+                          }
+
+                          if (fullCard != null) {
+                            ref.read(deckCardsProvider.notifier).addCard(
+                                  fullCard,
+                                  cardQuantity,
+                                );
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Erro ao carregar dados completos da carta.'),
+                                  duration: Duration(seconds: 2),
+                                ),
                               );
-                          Navigator.pop(context);
+                            }
+                          }
                         },
                         icon: const Icon(Symbols.save_rounded),
-                        label: Text(deckCard != null ? 'Atualizar' : 'Adicionar'),
+                        label:
+                            Text(deckCard != null ? 'Atualizar' : 'Adicionar'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4CAF50),
                           foregroundColor: Colors.white,
