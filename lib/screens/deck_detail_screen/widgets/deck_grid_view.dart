@@ -18,24 +18,27 @@ class DeckGridView extends StatelessWidget {
     final deckId = deck.id;
     final cards = deck.cards;
     final firstCard = deck.cards.isNotEmpty ? deck.cards.first : null;
-    return GridView.builder(
-      itemCount: cards.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 24,
-        childAspectRatio: 2 / 2.9,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: GridView.builder(
+        itemCount: cards.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 18,
+          mainAxisSpacing: 6,
+          childAspectRatio: 2 / 2.9,
+        ),
+        itemBuilder: (context, index) {
+          final currentCard = cards[index];
+          return CardWithRipple(
+            tag: (currentCard.id ?? '') == (firstCard?.id ?? '')
+                ? deckId
+                : (currentCard.id ?? '$deckId-${currentCard.localId ?? ''}'),
+            imageURL: currentCard.image ?? '',
+            onLongPress: () {},
+          );
+        },
       ),
-      itemBuilder: (context, index) {
-        final currentCard = cards[index];
-        return CardWithRipple(
-          tag: (currentCard.id ?? '') == (firstCard?.id ?? '')
-              ? deckId
-              : (currentCard.id ?? '$deckId-${currentCard.localId ?? ''}'),
-          imageURL: currentCard.image ?? '',
-          onLongPress: () {},
-        );
-      },
     );
   }
 }

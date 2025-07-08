@@ -21,7 +21,11 @@ class DeckCategorizedListView extends StatelessWidget {
     final cardsByCategory =
         groupBy(deck.cards, (card) => card.category ?? 'Sem Categoria');
     
+    const int columnCount = 2;
     final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth * 0.04; // ~16 px
+    final spacing = screenWidth * 0.04; // mesmo valor que o padding
+    final double cardWidth = (screenWidth - (horizontalPadding) - ((spacing) * (columnCount))) / columnCount;
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 100),
@@ -41,15 +45,15 @@ class DeckCategorizedListView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: Wrap(
-                  spacing: screenWidth * 0.04,
-                  runSpacing: screenWidth * 0.04,
+                  spacing: spacing,
+                  runSpacing: spacing,
                   children: cards.map((card) {
                     final tag = card.id ?? '${deck.id}-${card.localId ?? ''}';
 
                     return SizedBox(
-                      width: screenWidth * 0.43,
+                      width: cardWidth,
                       child: CardWithRipple(
                         tag: tag,
                         imageURL: card.image ?? '',

@@ -67,16 +67,13 @@ class _DeckDetailScreenState extends ConsumerState<DeckDetailScreen> {
         extendBodyBehindAppBar: true,
         extendBody: true,
         body: SafeArea(
-          child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              child: showListGrid
+          child: showListGrid
                   ? DeckGridView(deck: deck)
                   : DeckCategorizedListView(
                       deck: deck,
                       onCardTap: (cardId) {/* ação */},
                       onCardLongPress: (cardId) {/* ação */},
-                    )),
+                    )
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 15.0),
