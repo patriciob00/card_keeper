@@ -137,36 +137,34 @@ class _CardBackFace extends StatelessWidget {
         return Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(borderRadius!),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/card-back.png'),
-                      fit: BoxFit.cover,
-                      filterQuality: FilterQuality.high,
-                    ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/card-back.png'),
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
                   ),
                 ),
-                CardBackInfo(
-                  size: cardSize,
-                  currentCard: currentCard,
-                  isAlreadyOnList: isAlreadyOnList,
-                ),
-                Positioned.fill(
+              ),
+              CardBackInfo(
+                size: cardSize,
+                currentCard: currentCard,
+                isAlreadyOnList: isAlreadyOnList,
+              ),
+              Positioned.fill(
                   child: Material(
-                    borderRadius: BorderRadius.circular(borderRadius!),
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => onTap != null ? onTap!() : null,
-                      splashColor: Colors.white24,
                       borderRadius: BorderRadius.circular(borderRadius!),
-                    )
-                  )
-                ),
-              ],
-            ),
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => onTap != null ? onTap!() : null,
+                        splashColor: Colors.white24,
+                        borderRadius: BorderRadius.circular(borderRadius!),
+                      ))),
+            ],
+          ),
         );
       },
     );
@@ -239,57 +237,126 @@ class CardBackInfo extends StatelessWidget {
                       horizontal: size.height * 0.025,
                       vertical: size.width * 0.045),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: size.width * 0.04),
+                      // Coluna com nome e raridade que encolhe
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              currentCard?.name ?? '',
-                              style: TextStyle(
-                                fontSize: size.height * 0.045,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                shadows: const [
-                                  Shadow(
-                                    offset: Offset(3.0, 1.0),
-                                    blurRadius: 4.0,
-                                    color: Color.fromARGB(60, 251, 251, 251),
-                                  ),
-                                ],
+                            // Nome: encolhe sem quebrar e com reticências
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                currentCard?.name ?? '',
+                                maxLines: 2,
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: size.height * 0.10, // o h que você já calcula
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  shadows: const [
+                                    Shadow(
+                                      offset: Offset(3, 1),
+                                      blurRadius: 4,
+                                      color: Color.fromARGB(60, 251, 251, 251),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            Text(
+                            SizedBox(width: size.width * 0.002),
+                            // Raridade: mesma lógica
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
                               currentCard?.rarity ?? '',
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
                                 fontSize: size.height * 0.04,
-                                shadows: const [
-                                  Shadow(
-                                    offset: Offset(3.0, 1.0),
-                                    blurRadius: 4.0,
-                                    color: Color.fromARGB(60, 251, 251, 251),
-                                  ),
-                                ],
+                                color: Colors.white,
                               ),
                             ),
+                            )
                           ],
                         ),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: size.width * 0.04),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+
+                      SizedBox(width: size.width * 0.004),
+
+                      // Tipos com largura máxima, alinhados à direita
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: size.width * 0.24), // ~28% da largura
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Wrap(
+                            spacing: size.width * 0.004,
+                            runSpacing: size.width * 0.004,
+                            alignment: WrapAlignment.end,
                             children: typesList(currentCard?.types),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
+                  // child: Row(
+                  //   mainAxisAlignment: MainAxisAlignment.start,
+                  //   children: [
+                  //     Padding(
+                  //       padding: EdgeInsets.only(left: size.width * 0.04),
+                  //       child: Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           Text(
+                  //             currentCard?.name ?? '',
+                  //             style: TextStyle(
+                  //               fontSize: size.height * 0.045,
+                  //               color: Colors.white,
+                  //               fontWeight: FontWeight.bold,
+                  //               shadows: const [
+                  //                 Shadow(
+                  //                   offset: Offset(3.0, 1.0),
+                  //                   blurRadius: 4.0,
+                  //                   color: Color.fromARGB(60, 251, 251, 251),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //           Text(
+                  //             currentCard?.rarity ?? '',
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               fontWeight: FontWeight.normal,
+                  //               fontSize: size.height * 0.04,
+                  //               shadows: const [
+                  //                 Shadow(
+                  //                   offset: Offset(3.0, 1.0),
+                  //                   blurRadius: 4.0,
+                  //                   color: Color.fromARGB(60, 251, 251, 251),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //     Expanded(
+                  //       child: Padding(
+                  //         padding: EdgeInsets.only(left: size.width * 0.04),
+                  //         child: Row(
+                  //           mainAxisAlignment: MainAxisAlignment.end,
+                  //           children: typesList(currentCard?.types),
+                  //         ),
+                  //       ),
+                  //     )
+                  //   ],
+                  // ),
                 ),
                 if (currentCard!.pokemonCardSet!.logo != null)
                   Padding(
@@ -325,7 +392,7 @@ class CardBackInfo extends StatelessWidget {
                               imageUrl: currentCard!.pokemonCardSet!.logo ?? '',
                               fit: BoxFit.contain,
                               filterQuality: FilterQuality.high,
-                              width: size.width * 0.25,
+                              width: size.width * 0.35,
                             ))
                       ],
                     ),
