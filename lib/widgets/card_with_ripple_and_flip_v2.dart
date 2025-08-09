@@ -254,7 +254,7 @@ class CardBackInfo extends StatelessWidget {
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: size.height * 0.10, // o h que você já calcula
+                                  fontSize: size.height * 0.08, // o h que você já calcula
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   shadows: const [
