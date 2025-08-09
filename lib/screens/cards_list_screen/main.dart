@@ -1,8 +1,7 @@
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
-import 'package:card_keeper/widgets/card_with_ripple.dart';
-import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
+import 'package:card_keeper/screens/cards_list_screen/cards_categorized_list_view.dart';
 import 'package:card_keeper/widgets/card_with_ripple_and_flip_v2.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
@@ -186,7 +185,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                         ),
                       ],
                     ))
-                : GridView.builder(
+                : showListGrid ? GridView.builder(
                     padding: EdgeInsets.only(
                         top: appBarheight + 10.0, bottom: bottomTabHeight + 10),
                     gridDelegate:
@@ -207,12 +206,6 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                           onLongPress: () =>
                               cardLongPressDialog(cardsList[index]),
                         ),
-                        // CardWithRipple(
-                        //   tag: cardsList[index].image ?? '',
-                        //   imageURL: cardsList[index].image ?? '',
-                        //   onLongPress: () =>
-                        //       cardLongPressDialog(cardsList[index]),
-                        // ),
                         Positioned(
                             top: -12,
                             right: 3,
@@ -225,11 +218,25 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                             ))
                       ]);
                     },
-                  ),
+                  ) : 
+                  Padding(
+                      padding: EdgeInsets.only(
+                        top: appBarheight + 10.0,
+                        bottom: bottomTabHeight + 10,
+                      ),
+                      child: CardsCategorizedListView(
+                        cards: cardsList,
+                        onLongPress: (card) => cardLongPressDialog(card),
+                        // Injeta seu overlay de badges pra manter consistência
+                        buildBadgeOverlay: (card) => Row(
+                          textDirection: TextDirection.rtl,
+                          children: getBadges(card),
+                        ),
+                      ),
+                    )),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

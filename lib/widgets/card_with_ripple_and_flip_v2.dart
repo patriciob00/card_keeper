@@ -254,7 +254,8 @@ class CardBackInfo extends StatelessWidget {
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: size.height * 0.08, // o h que você já calcula
+                                  fontSize: size.height *
+                                      0.06, // o h que você já calcula
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   shadows: const [
@@ -273,15 +274,15 @@ class CardBackInfo extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                              currentCard?.rarity ?? '',
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: size.height * 0.04,
-                                color: Colors.white,
+                                currentCard?.rarity ?? '',
+                                maxLines: 1,
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: size.height * 0.04,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
                             )
                           ],
                         ),
@@ -388,12 +389,20 @@ class CardBackInfo extends StatelessWidget {
                             padding: EdgeInsets.only(
                                 left: size.width * 0.01,
                                 right: size.width * 0.035),
-                            child: CachedNetworkImage(
-                              imageUrl: currentCard!.pokemonCardSet!.logo ?? '',
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.high,
-                              width: size.width * 0.35,
-                            ))
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: size.width * 0.25,
+                                maxHeight: size.height * 0.12,
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    currentCard!.pokemonCardSet!.logo ?? '',
+                                fit: BoxFit.contain,
+                                filterQuality: FilterQuality.high,
+                                width: size.width * 0.28,
+                                height: size.height * 0.13,
+                              ),
+                            )),
                       ],
                     ),
                   ),
