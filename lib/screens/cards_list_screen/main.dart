@@ -2,6 +2,8 @@ import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
 import 'package:card_keeper/widgets/card_with_ripple.dart';
+import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
+import 'package:card_keeper/widgets/card_with_ripple_and_flip_v2.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
@@ -75,10 +77,6 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         ),
       ));
     }
-
-    list.add(const BadgeCustom(
-        child: Text('HOLO'),
-      ));
     return list;
   }
 
@@ -91,7 +89,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
               onTap: () => Navigator.pop(context),
               child: Container(
                 height: double.infinity,
-                decoration: BoxDecoration(color: Colors.black.withOpacity(0.2)),
+                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -201,12 +199,20 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                     itemCount: cardsList.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Stack(clipBehavior: Clip.none, children: [
-                        CardWithRipple(
-                          tag: cardsList[index].image ?? '',
+                        CardWithRippleAndFlipV2(
+                          isAlreadyOnList: true,
+                          currentPokemon: cardsList[index],
+                          tag: cardsList[index].image ?? '', 
                           imageURL: cardsList[index].image ?? '',
                           onLongPress: () =>
                               cardLongPressDialog(cardsList[index]),
                         ),
+                        // CardWithRipple(
+                        //   tag: cardsList[index].image ?? '',
+                        //   imageURL: cardsList[index].image ?? '',
+                        //   onLongPress: () =>
+                        //       cardLongPressDialog(cardsList[index]),
+                        // ),
                         Positioned(
                             top: -12,
                             right: 3,
@@ -247,7 +253,7 @@ class BadgeCustom extends StatelessWidget {
       decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               spreadRadius: 3,
               blurRadius: 3,
               offset: const Offset(0, 1), // changes position of shadow

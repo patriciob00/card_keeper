@@ -164,7 +164,7 @@ class CardBackInfo extends StatelessWidget {
         height: (size.width  * 0.9) * 1.39,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            color: Colors.black.withOpacity(0.7)),
+            color: Colors.black.withValues(alpha: 0.7)),
         child: Padding(
           padding: const EdgeInsets.only(bottom: 10.0, top: 20.0),
           child: SizedBox(

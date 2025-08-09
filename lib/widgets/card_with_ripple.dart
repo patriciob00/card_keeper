@@ -32,6 +32,7 @@ class CardWithRipple extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                   splashColor: Colors.white24,
+                  onTap: () => onTap != null ? onTap!() : null,
                   onLongPress: () =>
                       onLongPress != null ? onLongPress!() : null))),
     ]);
