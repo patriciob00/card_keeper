@@ -399,8 +399,6 @@ class CardBackInfo extends StatelessWidget {
                                     currentCard!.pokemonCardSet!.logo ?? '',
                                 fit: BoxFit.contain,
                                 filterQuality: FilterQuality.high,
-                                width: size.width * 0.28,
-                                height: size.height * 0.13,
                               ),
                             )),
                       ],
