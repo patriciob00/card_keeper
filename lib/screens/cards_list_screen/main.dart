@@ -2,6 +2,7 @@ import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
 import 'package:card_keeper/screens/cards_list_screen/cards_categorized_list_view.dart';
+import 'package:card_keeper/screens/cards_list_screen/widgets/stats_modal.dart';
 import 'package:card_keeper/widgets/card_with_ripple_and_flip_v2.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
@@ -11,26 +12,91 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:card_keeper/screens/cards_list_screen/utils/filter_functions.dart';
+import 'dart:core' as core;
+
+
+class CardsStats {
+    final core.int total;
+    final core.Map<CardKind, core.int> perKind;
+    final core.Map<core.String, core.int> perColection;
+    final core.Map<core.String, core.int> pokemonPerType;
+    CardsStats({
+      required this.total,
+      required this.perKind,
+      required this.perColection,
+      required this.pokemonPerType,
+    });
+  }
 
 class CardListScreen extends ConsumerStatefulWidget {
   const CardListScreen(
       {super.key, required this.currentIdx, required this.onTap});
 
-  final int currentIdx;
-  final Function(int idx) onTap;
+  final core.int currentIdx;
+  final Function(core.int idx) onTap;
 
-  @override
+  @core.override
   ConsumerState<CardListScreen> createState() => _CardListScreenState();
 }
 
 class _CardListScreenState extends ConsumerState<CardListScreen> {
-  bool get isWeb => kIsWeb;
+  final core.Set<CardKind> _selectedKinds = {};                // vazio = todos
+  final core.Set<core.String> _selectedPokemonTypes = {};            // vazio = todos
+
+  // âncora do botão de filtro pra abrir o menu no lugar certo
+  final GlobalKey _filterIconKey = GlobalKey();
+
+  // Cards após aplicar filtro
+  core.List<PokemonCard> get _filteredCards {
+    final cards = ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
+    return cards.where((c) {
+      final kind = kindOf(c);
+      final okKind = _selectedKinds.isEmpty || _selectedKinds.contains(kind);
+
+      // só aplica filtro de tipo de Pokémon quando a carta é Pokémon
+      final types = c.types ?? const [];
+      final okPokeType = _selectedPokemonTypes.isEmpty ||
+          (kind == CardKind.pokemon && types.any(_selectedPokemonTypes.contains));
+
+      return okKind && okPokeType;
+    }).toList();
+  }
+  
+  CardsStats _computeStats(core.List<PokemonCard> cards) {
+    final perKind = <CardKind, core.int>{};
+    final perCollection = <core.String, core.int>{};
+    final pokemonPerType = <core.String, core.int>{};
+
+    for (final c in cards) {
+      final k = kindOf(c);
+      perKind[k] = (perKind[k] ?? 0) + 1;
+
+      final setName = c.pokemonCardSet?.name ?? '—';
+      perCollection[setName] = (perCollection[setName] ?? 0) + 1;
+
+      if (k == CardKind.pokemon) {
+        for (final t in c.types ?? const []) {
+          pokemonPerType[t] = (pokemonPerType[t] ?? 0) + 1;
+        }
+      }
+    }
+
+    return CardsStats(
+      total: cards.length,
+      perKind: perKind,
+      perColection: perCollection,
+      pokemonPerType: pokemonPerType,
+    );
+  }
+
+  core.bool get isWeb => kIsWeb;
 
   late PokemonCardsControler _pkmnCardsController;
 
-  bool showListGrid = true;
+  core.bool showListGrid = true;
 
-  @override
+  @core.override
   void initState() {
     super.initState();
     _pkmnCardsController = PokemonCardsControler(ref: ref);
@@ -47,8 +113,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     Navigator.pop(context);
   }
 
-  List<Widget> getBadges(PokemonCard card) {
-    List<Widget> list = [];
+  core.List<Widget> getBadges(PokemonCard card) {
+    core.List<Widget> list = [];
 
     list.add(BadgeCustom(
         child: Text(
@@ -79,7 +145,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     return list;
   }
 
-  Future<void> cardLongPressDialog(PokemonCard card) async {
+  core.Future<void> cardLongPressDialog(PokemonCard card) async {
     final size = MediaQuery.of(context).size;
     showDialog(
         context: context,
@@ -87,7 +153,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         builder: (context) => GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
-                height: double.infinity,
+                height: core.double.infinity,
                 decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -125,13 +191,13 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
             ));
   }
 
-  @override
+  @core.override
   Widget build(BuildContext context) {
-    double appBarheight = Scaffold.of(context).appBarMaxHeight ?? 60;
-    double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
+    core.double appBarheight = Scaffold.of(context).appBarMaxHeight ?? 60;
+    core.double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
 
     final cardsList =
-        ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider);
+        ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
 
     return ContainerWithBg(
       child: Scaffold(
@@ -148,13 +214,24 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
             IconButton(onPressed: () {
               changeListViewType();
             }, icon:  Icon(showListGrid ? Symbols.view_cozy_rounded : Symbols.lists_rounded, color: Colors.white,)),
-            IconButton(
-                onPressed: () {},
+            if (cardsList.isNotEmpty) 
+              IconButton(
+                onPressed: () => showStatsModal(ref.read(pokemonCardsRepositoryProvider), _computeStats(cardsList), context),
                 icon: const Icon(
-                  Icons.filter_list,
+                  Icons.info_outline,
                   color: Colors.white,
                 ))
           ],
+        ),
+        floatingActionButton: cardsList.isEmpty ? null : Padding(
+          padding: const EdgeInsets.only(bottom:85),
+          child: FloatingActionButton(
+            onPressed: () {},
+            backgroundColor: Colors.black,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            focusElevation: 10.0,
+            child: const Icon(Symbols.filter_list, color: Colors.white),
+          ),
         ),
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
@@ -164,8 +241,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
           child: Container(
             child: cardsList.isEmpty
                 ? SizedBox(
-                    height: double.infinity,
-                    width: double.infinity,
+                    height: core.double.infinity,
+                    width: core.double.infinity,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -196,7 +273,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                       childAspectRatio: 2 / 2.8,
                     ),
                     itemCount: cardsList.length,
-                    itemBuilder: (BuildContext context, int index) {
+                    itemBuilder: (BuildContext context, core.int index) {
                       return Stack(clipBehavior: Clip.none, children: [
                         CardWithRippleAndFlipV2(
                           isAlreadyOnList: true,
@@ -250,7 +327,7 @@ class BadgeCustom extends StatelessWidget {
   final Color backgroundColor;
   final Widget child;
 
-  @override
+  @core.override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
