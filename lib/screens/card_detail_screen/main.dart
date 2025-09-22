@@ -142,7 +142,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     // final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: isLoading ? null : FloatingActionButton(
           elevation: 5.0,
           backgroundColor: Colors.black,
           onPressed: () {

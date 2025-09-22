@@ -73,6 +73,17 @@ void showStatsModal(
               ),
             ),
             const SizedBox(height: 22),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '- Tipos de cartas - ',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
             Wrap(
               spacing: 10,
               children: CardKind.values.map((k) {
@@ -120,6 +131,17 @@ void showStatsModal(
                   ),
                 );
               }).toList(),
+            ),
+            const SizedBox(height: 22),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '- Tipos de Pokémon - ',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
             const SizedBox(height: 22),
             Wrap(
@@ -193,24 +215,13 @@ void showStatsModal(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '- COLEÇÕES - ',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  '- Coleções - ',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ],
             ),
             const SizedBox(height: 22),
-            // Wrap(
-            //   spacing: 10,
-            //   children: stats.perColection.entries
-            //       .map((e) => ListTile(
-            //             dense: true,
-            //             contentPadding: EdgeInsets.zero,
-            //             title: Text(e.key),
-            //             trailing: Text(e.value.toString()),
-            //           ))
-            //       .toList(),
-            // ),
             Wrap(
               spacing: 10,
               children: stats.perColection.entries.map((k) {

@@ -2,7 +2,7 @@
 
 enum PokemonTypesIcon {
   dragao('Dragão', 'assets/images/types_badge/dragon.png'),
-  eletrico('Elétrico', 'assets/images/types_badge/electric.png'),
+  eletrico('Elétrico', 'assets/images/types_badge/eletric.png'),
   normal('Incolor', 'assets/images/types_badge/normal.png'),
   fada('Fada', 'assets/images/types_badge/fairy.png'),
   fogo('Fogo', 'assets/images/types_badge/fire.png'),
