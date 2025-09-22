@@ -406,7 +406,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
             ),
             if (notFilteredCardList.isNotEmpty) 
               IconButton(
-                onPressed: () => showStatsModal(ref.read(pokemonCardsRepositoryProvider), _computeStats(cardsList), context),
+                onPressed: () => showStatsModal(ref.read(pokemonCardsRepositoryProvider), _computeStats(notFilteredCardList), context),
                 icon: const Icon(
                   Icons.info_outline,
                   color: Colors.white,
