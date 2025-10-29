@@ -12,7 +12,7 @@ void showStatsModal(
     context: context,
     useSafeArea: true,
     clipBehavior: Clip.hardEdge,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.black,
     showDragHandle: true,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -29,7 +29,7 @@ void showStatsModal(
               children: [
                 Text(
                   '- INFO - ',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -43,7 +43,7 @@ void showStatsModal(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.deepPurpleAccent.withAlpha(77),
+                  color: Colors.deepPurpleAccent,
                   width: 2,
                 ),
               ),
@@ -55,7 +55,7 @@ void showStatsModal(
                     style: TextStyle(
                       fontSize: 16, // ou 16
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -65,7 +65,7 @@ void showStatsModal(
                     style: const TextStyle(
                       fontSize: 22, // ou 18
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -78,7 +78,7 @@ void showStatsModal(
               children: [
                 Text(
                   '- Tipos de cartas - ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -101,7 +101,7 @@ void showStatsModal(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.deepPurpleAccent.withAlpha(77),
+                      color: Colors.deepPurpleAccent,
                       width: 2,
                     ),
                   ),
@@ -113,7 +113,7 @@ void showStatsModal(
                         style: const TextStyle(
                           fontSize: 14, // ou 16
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -123,7 +123,7 @@ void showStatsModal(
                         style: const TextStyle(
                           fontSize: 20, // ou 18
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -138,7 +138,7 @@ void showStatsModal(
               children: [
                 Text(
                   '- Tipos de Pokémon - ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -168,7 +168,7 @@ void showStatsModal(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.deepPurpleAccent.withAlpha(77),
+                      color: Colors.deepPurpleAccent,
                       width: 2,
                     ),
                   ),
@@ -190,7 +190,7 @@ void showStatsModal(
                             style: const TextStyle(
                               fontSize: 16, // ou 16
                               fontWeight: FontWeight.w500,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           )
                         ],
@@ -201,7 +201,7 @@ void showStatsModal(
                         style: const TextStyle(
                           fontSize: 20, // ou 16
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -216,7 +216,7 @@ void showStatsModal(
               children: [
                 Text(
                   '- Coleções - ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -242,7 +242,7 @@ void showStatsModal(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.deepPurpleAccent.withAlpha(77),
+                      color: Colors.deepPurpleAccent,
                       width: 2,
                     ),
                   ),
@@ -254,7 +254,7 @@ void showStatsModal(
                             style: const TextStyle(
                               fontSize: 16, // ou 16
                               fontWeight: FontWeight.w500,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                             textAlign: TextAlign.center,
                       ),
@@ -264,7 +264,7 @@ void showStatsModal(
                         style: const TextStyle(
                           fontSize: 20, // ou 16
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
