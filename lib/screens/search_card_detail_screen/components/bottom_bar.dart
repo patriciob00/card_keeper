@@ -90,8 +90,8 @@ class _BottomBarState extends State<BottomBar> {
         semanticsLabel: 'available for sale',
         colorFilter: ColorFilter.mode(
             widget.pokemon?.isAvailableForSale == true
-                ? Colors.green.withOpacity(0.54)
-                : Colors.redAccent.withOpacity(0.54),
+                ? Colors.green.withValues(alpha: .54)
+                : Colors.redAccent.withValues(alpha: .54),
             BlendMode.srcIn),
       ),
       SvgPicture.asset(
@@ -100,8 +100,8 @@ class _BottomBarState extends State<BottomBar> {
         semanticsLabel: 'available for trading',
         colorFilter: ColorFilter.mode(
             widget.pokemon?.isAvailableForExchange == true
-                ? Colors.green.withOpacity(0.54)
-                : Colors.redAccent.withOpacity(0.54),
+                ? Colors.green.withValues(alpha: .54)
+                : Colors.redAccent.withValues(alpha: .54),
             BlendMode.srcIn),
       ),
     ];
@@ -119,7 +119,7 @@ class _BottomBarState extends State<BottomBar> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(50)),
-          border: Border.all(color: Colors.grey.withOpacity(0.8), width: 0.8),
+          border: Border.all(color: Colors.grey.withValues(alpha: .8), width: 0.8),
         ),
         child: Row(
           children: [

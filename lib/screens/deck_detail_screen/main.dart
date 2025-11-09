@@ -2,7 +2,6 @@ import 'package:card_keeper/data/models/deck_model.dart';
 import 'package:card_keeper/screens/deck_detail_screen/widgets/deck_categorized_list_view.dart';
 import 'package:card_keeper/screens/deck_detail_screen/widgets/deck_grid_view.dart';
 import 'package:card_keeper/widgets/top_bar.dart';
-import 'package:card_keeper/widgets/card_with_ripple.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,9 +28,6 @@ class _DeckDetailScreenState extends ConsumerState<DeckDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final deck = widget.deck;
-    final firstCard = deck.cards.isNotEmpty ? deck.cards.first : null;
-    final deckId = deck.id;
-    final cards = deck.cards;
 
     return ContainerWithBg(
       child: Scaffold(

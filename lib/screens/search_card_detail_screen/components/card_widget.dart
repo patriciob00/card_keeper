@@ -1,4 +1,4 @@
-import 'package:card_keeper/screens/card_detail_screen/main.dart';
+import 'package:card_keeper/screens/search_card_detail_screen/main.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:flutter/material.dart';

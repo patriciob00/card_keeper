@@ -283,7 +283,7 @@ class AvailableForTrade extends StatelessWidget {
                 ),
               ),
               Text(
-                'Disponível para troca?',
+                'Disponível para troc5?',
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -401,7 +401,7 @@ class ActionsRow extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(left: 10),
                       child: Text(
-                        'Salvar',
+                        'Salvar 0',
                         style: TextStyle(color: Colors.white),
                       ),
                     )
@@ -425,7 +425,7 @@ class ActionsRow extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Text(
-                          'Remover',
+                          'Remover 2',
                           style: TextStyle(color: Colors.white),
                         ),
                       )

@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/providers/enums.dart';
-import 'package:card_keeper/screens/card_detail_screen/components/card_widget.dart';
-import 'package:card_keeper/screens/card_detail_screen/main.dart';
+import 'package:card_keeper/screens/search_card_detail_screen/components/card_widget.dart';
+import 'package:card_keeper/screens/search_card_detail_screen/main.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -362,7 +362,7 @@ class CardBackInfo extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        'Disponível para troca?',
+                        'Disponível para troc3?',
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.white,

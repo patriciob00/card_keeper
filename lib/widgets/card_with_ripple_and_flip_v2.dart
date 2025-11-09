@@ -536,7 +536,7 @@ class CardBackInfo extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Disponível para troca?',
+                          'Disponível para troc9?',
                           style: TextStyle(
                             fontSize: size.height * 0.04,
                             color: Colors.white,
