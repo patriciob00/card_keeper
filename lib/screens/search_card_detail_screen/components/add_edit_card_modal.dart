@@ -1,5 +1,6 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/providers/enums.dart';
+import 'package:card_keeper/widgets/custom_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -53,6 +54,8 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
   bool isAvailableForSale = false;
   bool isAvailableForTrade = false;
   int cardQuantity = 1;
+  bool isHolo = false;
+  bool isReverse = false;
 
   @override
   void initState() {
@@ -90,41 +93,90 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
     });
   }
 
+  void onChangeIsHolo(bool value) {
+    setState(() {
+      isHolo = value;
+    });
+
+    if (value == true) {
+      setState(() {
+        isReverse = false;
+      });
+    }
+  }
+
+  void onChangeIsReverse(bool value) {
+    setState(() {
+      isReverse = value;
+    });
+
+    if (value == true) {
+      setState(() {
+        isHolo = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    PokemonCard? card = widget.card;
+    final bool hasHoloOption = card?.variants?.holo == true;
+    final bool hasReverseOption = card?.variants?.reverse == true;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10, top: 10),
         child: Wrap(
-          children: [Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-                child: Column(
-                  children: [
-                    CardQuantityOption(
-                      quantity: cardQuantity,
-                      remove: () => removeQuantity(),
-                      add: () => addQuantity(),
-                    ),
-                    AvailableForSaleInfo(
-                      setIsAvailable: onChangeIsAvailableForSale,
-                      isAvailable: isAvailableForSale,
-                    ),
-                    AvailableForTrade(
-                      isAvailable: isAvailableForTrade,
-                      setIsAvailable: onChangeIsAvailableForTrade,
-                    ),
-                    ActionsRow(
-                        widget: widget,
-                        cardQuantity: cardQuantity,
-                        isAvailableForSale: isAvailableForSale,
-                        isAvailableForTrade: isAvailableForTrade)
-                  ],
-                ),
-              )
-            ],
-          )],
+          children: [
+            Column(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
+                  child: Column(
+                    children: [
+                      CardQuantityOption(
+                        quantity: cardQuantity,
+                        remove: () => removeQuantity(),
+                        add: () => addQuantity(),
+                      ),
+                      CustomSwitch(
+                        icon: const Icon(Symbols.attach_money_sharp,color: Colors.green), 
+                        title: 'Disponível para venda?', 
+                        isActive: isAvailableForSale, 
+                        setIsActive: onChangeIsAvailableForSale
+                      ),
+                      CustomSwitch(
+                        icon: const Icon(Symbols.sync_alt_sharp,color: Colors.orange),
+                        title: 'Disponível para troca?', 
+                        setIsActive: onChangeIsAvailableForTrade,
+                        isActive: isAvailableForTrade,
+                      ),
+                      if (hasHoloOption)
+                        CustomSwitch(
+                          icon: const Icon(Symbols.fullscreen_portrait_sharp,color: Colors.deepPurple),
+                          title: 'É uma carta Holo?', 
+                          setIsActive: onChangeIsHolo,
+                          isActive: isHolo,
+                        ),
+                      if (hasReverseOption)
+                        CustomSwitch(
+                          icon: const Icon(Symbols.fullscreen_portrait_sharp,color: Colors.deepOrange),
+                          title: 'É uma carta Reverse Holo?', 
+                          setIsActive: onChangeIsReverse,
+                          isActive: isReverse,
+                        ),
+                      ActionsRow(
+                          widget: widget,
+                          cardQuantity: cardQuantity,
+                          isAvailableForSale: isAvailableForSale,
+                          isAvailableForTrade: isAvailableForTrade)
+                    ],
+                  ),
+                )
+              ],
+            )
+          ],
         ),
       ),
     );
@@ -255,112 +307,6 @@ class CardQuantityOption extends StatelessWidget {
   }
 }
 
-class AvailableForTrade extends StatelessWidget {
-  const AvailableForTrade({
-    super.key,
-    required this.isAvailable,
-    required this.setIsAvailable,
-  });
-
-  final bool isAvailable;
-  final Function(bool value) setIsAvailable;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Symbols.sync_alt_sharp,
-                  color: Colors.orange,
-                ),
-              ),
-              Text(
-                'Disponível para troc5?',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 50,
-            child: FittedBox(
-              fit: BoxFit.fill,
-              child: Switch(
-                activeColor: Colors.green,
-                value: isAvailable,
-                onChanged: setIsAvailable,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AvailableForSaleInfo extends StatelessWidget {
-  const AvailableForSaleInfo({
-    super.key,
-    required this.isAvailable,
-    required this.setIsAvailable,
-  });
-
-  final bool isAvailable;
-  final Function(bool value) setIsAvailable;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Symbols.attach_money_sharp,
-                  color: Colors.green,
-                ),
-              ),
-              Text(
-                'Disponível para venda?',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 50,
-            child: FittedBox(
-              fit: BoxFit.fill,
-              child: Switch(
-                value: isAvailable,
-                activeColor: Colors.green,
-                onChanged: setIsAvailable,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class ActionsRow extends StatelessWidget {
   const ActionsRow({
     super.key,
@@ -382,32 +328,32 @@ class ActionsRow extends StatelessWidget {
       child: Row(
         children: [
           ElevatedButton(
-
-              style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen,),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightGreen,
+              ),
               onPressed: () {
                 widget.saveCard(
                     cardQuantity, isAvailableForSale, isAvailableForTrade);
                 Navigator.pop(context);
               },
               child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Symbols.save_sharp,
-                      color: Colors.white,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Symbols.save_sharp,
+                    color: Colors.white,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Text(
+                      'Salvar',
+                      style: TextStyle(color: Colors.white),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        'Salvar 0',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
-                  ],
-                )),
-              const Spacer(),
+                  )
+                ],
+              )),
+          const Spacer(),
           widget.isAlreadyOnList
               ? ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -425,7 +371,7 @@ class ActionsRow extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Text(
-                          'Remover 2',
+                          'Remover',
                           style: TextStyle(color: Colors.white),
                         ),
                       )

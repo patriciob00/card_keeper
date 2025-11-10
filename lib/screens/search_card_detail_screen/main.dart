@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/screens/search_card_detail_screen/components/flip_card.dart';
-import 'package:card_keeper/screens/search_card_detail_screen/components/modal_bottom_sheet.dart';
+import 'package:card_keeper/screens/search_card_detail_screen/components/add_edit_card_modal.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +35,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
     _detailController = PokemonCardsControler(ref: ref);
 
-    setFavoriteValue();
+    setIsOnListValue();
     getCurrentPokemon();
   }
 
@@ -44,7 +44,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     super.dispose();
   }
 
-  void setFavoriteValue() {
+  void setIsOnListValue() {
     setState(() {
       _isOnList =
           _detailController.pokemonIsAlreadyOnList(widget.card.id ?? '');
@@ -87,7 +87,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     getCurrentPokemon();
 
 
-    setFavoriteValue();
+    setIsOnListValue();
 
     setState(() {
       isLoading = !isLoading;
@@ -107,7 +107,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
     await _detailController.removeCard(currentPokemon as PokemonCard);
 
-    setFavoriteValue();
+    setIsOnListValue();
 
     setState(() {
       isLoading = !isLoading;
@@ -133,7 +133,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
         showDragHandle: true,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return ModalBottomSheet(isAlreadyOnList: _isOnList, card: currentPokemon as PokemonCard, saveCard: saveCardOnList, removeCard: () {},);
+          return ModalBottomSheet(isAlreadyOnList: _isOnList, card: currentPokemon as PokemonCard, saveCard: saveCardOnList, removeCard: removeCardFromList,);
         });
   }
 

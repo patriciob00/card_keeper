@@ -3,8 +3,8 @@ import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:flutter/material.dart';
 
-class CardWidget extends StatefulWidget {
-  const CardWidget({
+class FrontCardWidget extends StatefulWidget {
+  const FrontCardWidget({
     super.key,
     required this.size,
     required this.widget, this.onTap,
@@ -16,10 +16,10 @@ class CardWidget extends StatefulWidget {
 
 
   @override
-  State<CardWidget> createState() => _CardWidgetState();
+  State<FrontCardWidget> createState() => _CardWidgetState();
 }
 
-class _CardWidgetState extends State<CardWidget> with TickerProviderStateMixin {
+class _CardWidgetState extends State<FrontCardWidget> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
