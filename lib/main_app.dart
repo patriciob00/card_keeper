@@ -39,7 +39,7 @@ class MainPage extends ConsumerStatefulWidget {
 class MainPageState extends ConsumerState<MainPage> {
  late int currentIdx = 0;
 
- late PokemonCardsControler _controller;
+ late PokemonCardsController _controller;
 
  late SearchHistoryController _searchController;
 
@@ -93,7 +93,7 @@ class MainPageState extends ConsumerState<MainPage> {
     super.initState();
 
     currentIdx = widget.initialIndex;
-    _controller = PokemonCardsControler(ref: ref);
+    _controller = PokemonCardsController(ref: ref);
 
     _searchController = SearchHistoryController(ref: ref);
 

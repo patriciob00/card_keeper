@@ -23,7 +23,7 @@ class SearchCardDetailPage extends ConsumerStatefulWidget {
 class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
   PokemonCard? currentPokemon;
 
-  late PokemonCardsControler _detailController;
+  late PokemonCardsController _detailController;
 
   bool _isOnList = false;
 
@@ -33,7 +33,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
   void initState() {
     super.initState();
 
-    _detailController = PokemonCardsControler(ref: ref);
+    _detailController = PokemonCardsController(ref: ref);
 
     setIsOnListValue();
     getCurrentPokemon();

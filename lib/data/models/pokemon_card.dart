@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:card_keeper/data/models/card_variant.dart';
+
 PokemonCard pokemonCardFromJson(String str) => PokemonCard.fromJson(json.decode(str));
 
 String pokemonCardToJson(PokemonCard data) => json.encode(data.toJson());
@@ -32,6 +34,7 @@ class PokemonCard {
     int? retreat;
     Legal? legal;
     DateTime? updated;
+    CardVariant? variant;
 
     PokemonCard({
         this.category,
@@ -57,7 +60,10 @@ class PokemonCard {
         this.retreat,
         this.legal,
         this.updated,
+        this.variant = CardVariant.normal,
     });
+
+    String get uniqueId => '${id}_${variant?.code ?? "normal"}';
 
     factory PokemonCard.fromJson(Map<String, dynamic> json) => PokemonCard(
         category: json["category"],
@@ -83,6 +89,7 @@ class PokemonCard {
         retreat: json["retreat"],
         legal: json["legal"] == null ? null : Legal.fromJson(json["legal"]),
         updated: json["updated"] == null ? null : DateTime.parse(json["updated"]),
+        variant: CardVariant.fromCode(json['variant']),
     );
 
     Map<String, dynamic> toJson() => {
@@ -109,7 +116,62 @@ class PokemonCard {
         "retreat": retreat,
         "legal": legal?.toJson(),
         "updated": updated?.toIso8601String(),
+        'variant': variant?.code,
     };
+
+    PokemonCard copyWith({
+      String? category,
+      int? cardQuantity,
+      bool? isAvailableForSale,
+      bool? isAvailableForExchange,
+      DateTime? addedAt,
+      String? id,
+      String? illustrator,
+      String? image,
+      String? localId,
+      String? name,
+      String? rarity,
+      Set? pokemonCardSet,
+      Variants? variants,
+      List<int>? dexId,
+      int? hp,
+      List<String>? types,
+      String? stage,
+      List<Ability>? abilities,
+      List<Attack>? attacks,
+      List<Weakness>? weaknesses,
+      int? retreat,
+      Legal? legal,
+      DateTime? updated,
+      CardVariant? variant,
+    }) {
+      return PokemonCard(
+        category: category ?? this.category,
+        cardQuantity: cardQuantity ?? this.cardQuantity,
+        isAvailableForSale: isAvailableForSale ?? this.isAvailableForSale,
+        isAvailableForExchange: isAvailableForExchange ?? this.isAvailableForExchange,
+        addedAt: addedAt ?? this.addedAt,
+        id: id ?? this.id,
+        illustrator: illustrator ?? this.illustrator,
+        image: image ?? this.image,
+        localId: localId ?? this.localId,
+        name: name ?? this.name,
+        rarity: rarity ?? this.rarity,
+        pokemonCardSet: pokemonCardSet ?? this.pokemonCardSet,
+        variants: variants ?? this.variants,
+        dexId: dexId ?? this.dexId,
+        hp: hp ?? this.hp,
+        types: types ?? this.types,
+        stage: stage ?? this.stage,
+        abilities: abilities ?? this.abilities,
+        attacks: attacks ?? this.attacks,
+        weaknesses: weaknesses ?? this.weaknesses,
+        retreat: retreat ?? this.retreat,
+        legal: legal ?? this.legal,
+        updated: updated ?? this.updated,
+        variant: variant ?? this.variant,
+      );
+    }
 }
 
 class Ability {

@@ -80,14 +80,14 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
   core.bool get isWeb => kIsWeb;
 
-  late PokemonCardsControler _pkmnCardsController;
+  late PokemonCardsController _pkmnCardsController;
 
   core.bool showListGrid = true;
 
   @core.override
   void initState() {
     super.initState();
-    _pkmnCardsController = PokemonCardsControler(ref: ref);
+    _pkmnCardsController = PokemonCardsController(ref: ref);
   }
 
   void changeListViewType() {

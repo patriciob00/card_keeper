@@ -8,9 +8,9 @@ import 'package:card_keeper/storage/pokemon_card_storage.dart';
 import 'package:card_keeper/storage/search_history_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PokemonCardsControler {
+class PokemonCardsController {
   final WidgetRef ref;
-  const PokemonCardsControler({required this.ref});
+  const PokemonCardsController({required this.ref});
 
   static final PokemonCardStorage _pkmnStorage = PokemonCardStorage();
   static final SearchHistoryStorage _searchStorage = SearchHistoryStorage();
@@ -43,25 +43,42 @@ class PokemonCardsControler {
   }
 
   Future<void> saveCard(PokemonCard pokemonCard) async {
-    await ref.read(pokemonCardsRepositoryProvider.notifier).addCard(pokemonCard);
+    final repo = ref.read(pokemonCardsRepositoryProvider.notifier);
+    await repo.addCard(pokemonCard);
 
     await _pkmnStorage.savePokemon(pokemonCard);
   }
 
-  Future<void> removeCard(PokemonCard pokemon) async {
-    await ref.read(pokemonCardsRepositoryProvider.notifier).removeCard(pokemon);
+  Future<void> removeCard(PokemonCard pokemonCard) async {
+    final repo = ref.read(pokemonCardsRepositoryProvider.notifier);
+    await repo.removeCard(pokemonCard);
 
-    await _pkmnStorage.removePokemon(pokemon);
+    await _pkmnStorage.removePokemon(pokemonCard);
   }
 
   Future<void> updateCard(PokemonCard pokemonCard) async {
-    await ref.read(pokemonCardsRepositoryProvider.notifier).updateCard(pokemonCard);
-
+    final repo = ref.read(pokemonCardsRepositoryProvider.notifier);
+    await repo.updateCard(pokemonCard);
+  
     await _pkmnStorage.updatePokemon(pokemonCard);
   }
 
   bool pokemonIsAlreadyOnList(String cardId) {
-    return ref.read(pokemonCardsRepositoryProvider.notifier).searchCard(cardId) != null;
+    final repo = ref.read(pokemonCardsRepositoryProvider.notifier);
+    final variants = repo.getVariants(cardId);
+    return variants.isNotEmpty;
+  }
+
+  bool variantExists(String uniqueId) {
+    return ref
+        .read(pokemonCardsRepositoryProvider.notifier)
+        .searchByUniqueId(uniqueId) != null;
+  }
+
+  PokemonCard? getVariant(String uniqueId) {
+    return ref
+      .read(pokemonCardsRepositoryProvider.notifier)
+      .searchByUniqueId(uniqueId);
   }
 
   List<PokemonCard> getCardsList() {
