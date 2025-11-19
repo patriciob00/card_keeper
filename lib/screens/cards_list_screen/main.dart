@@ -1,4 +1,5 @@
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
+import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/providers/enums.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
@@ -16,19 +17,18 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:card_keeper/screens/cards_list_screen/utils/filter_functions.dart';
 import 'dart:core' as core;
 
-
 class CardsStats {
-    final core.int total;
-    final core.Map<CardKind, core.int> perKind;
-    final core.Map<core.String, core.int> perColection;
-    final core.Map<core.String, core.int> pokemonPerType;
-    CardsStats({
-      required this.total,
-      required this.perKind,
-      required this.perColection,
-      required this.pokemonPerType,
-    });
-  }
+  final core.int total;
+  final core.Map<CardKind, core.int> perKind;
+  final core.Map<core.String, core.int> perColection;
+  final core.Map<core.String, core.int> pokemonPerType;
+  CardsStats({
+    required this.total,
+    required this.perKind,
+    required this.perColection,
+    required this.pokemonPerType,
+  });
+}
 
 class CardListScreen extends ConsumerStatefulWidget {
   const CardListScreen(
@@ -43,14 +43,14 @@ class CardListScreen extends ConsumerStatefulWidget {
 
 class _CardListScreenState extends ConsumerState<CardListScreen> {
   // Filtros
-  final core.Set<CardKind> _selectedKinds = {};          // vazio = todos
-  final core.Set<core.String> _selectedPokemonTypes = {};     // vazio = todos
+  final core.Set<CardKind> _selectedKinds = {}; // vazio = todos
+  final core.Set<core.String> _selectedPokemonTypes = {}; // vazio = todos
   core.bool _onlyForSale = false;
   core.bool _onlyForExchange = false;
 
   // âncora do botão de filtro pra abrir o menu no lugar certo
   final GlobalKey _filterIconKey = GlobalKey();
-  
+
   CardsStats _computeStats(core.List<PokemonCard> cards) {
     final perKind = <CardKind, core.int>{};
     final perCollection = <core.String, core.int>{};
@@ -130,6 +130,19 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         ),
       ));
     }
+    
+    final variant = card.variant ?? CardVariant.normal;
+    if (variant != CardVariant.normal) {
+      final core.bool isHoloVariant = variant == CardVariant.holo;
+      list.add(BadgeCustom(
+          child: Text(
+        isHoloVariant ? 'H' : 'R',
+        style: TextStyle(
+            fontSize: 12.0,
+            color: isHoloVariant ? Colors.deepPurple : Colors.deepOrange,
+            fontWeight: FontWeight.bold),
+      )));
+    }
     return list;
   }
 
@@ -142,7 +155,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
               onTap: () => Navigator.pop(context),
               child: Container(
                 height: core.double.infinity,
-                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
+                decoration:
+                    BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -154,7 +168,10 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                       ),
                       child: HeroWidget(
                           tag: card.image ?? '',
-                          child: ImageCached(imageURL: card.image ?? '', showHoloEffect: true,)),
+                          child: ImageCached(
+                            imageURL: card.image ?? '',
+                            showHoloEffect: true,
+                          )),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 30.0),
@@ -181,16 +198,17 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
   // Aplica TODOS os filtros
   core.List<PokemonCard> get _filteredCards {
-    final cards = ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
+    final cards =
+        ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
     return cards.where((c) {
       final kind = kindOf(c);
 
-      final okKind =
-          _selectedKinds.isEmpty || _selectedKinds.contains(kind);
+      final okKind = _selectedKinds.isEmpty || _selectedKinds.contains(kind);
 
       final types = c.types ?? const [];
       final okPokeType = _selectedPokemonTypes.isEmpty ||
-          (kind == CardKind.pokemon && types.any(_selectedPokemonTypes.contains));
+          (kind == CardKind.pokemon &&
+              types.any(_selectedPokemonTypes.contains));
 
       final okSale = !_onlyForSale || (c.isAvailableForSale == true);
       final okExchange =
@@ -202,7 +220,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
   core.Future<void> _openFiltersMenu(GlobalKey anchorKey) async {
     // Pega posição do ícone
-    final renderBox = anchorKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        anchorKey.currentContext?.findRenderObject() as RenderBox?;
     final overlay =
         Navigator.of(context).overlay?.context.findRenderObject() as RenderBox?;
     if (renderBox == null || overlay == null) return;
@@ -333,7 +352,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                         ),
                         const Spacer(),
                         FilledButton(
-                          style: FilledButton.styleFrom(backgroundColor: Colors.lightGreen),
+                          style: FilledButton.styleFrom(
+                              backgroundColor: Colors.lightGreen),
                           onPressed: () {
                             setState(() {
                               _selectedKinds
@@ -361,24 +381,28 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     );
   }
 
-
-
   @core.override
   Widget build(BuildContext context) {
     core.double appBarheight = Scaffold.of(context).appBarMaxHeight ?? 60;
     core.double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
 
-    final notFilteredCardList = ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
+    final notFilteredCardList =
+        ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
 
     final cardsList = _filteredCards;
 
-    final emptyTextHelper = cardsList.isEmpty && notFilteredCardList.isEmpty ? 'Lista vazia!' : 'O Filtro não encontrou nada!';
-    final emptySubtextHelper = (
-      cardsList.isEmpty && notFilteredCardList.isEmpty 
-      ) ? 'Adicione alguns cards para encontrar aqui.' : 
-      'Remova ou refaça o filtro!';
+    final emptyTextHelper = cardsList.isEmpty && notFilteredCardList.isEmpty
+        ? 'Lista vazia!'
+        : 'O Filtro não encontrou nada!';
+    final emptySubtextHelper =
+        (cardsList.isEmpty && notFilteredCardList.isEmpty)
+            ? 'Adicione alguns cards para encontrar aqui.'
+            : 'Remova ou refaça o filtro!';
 
-    final filterNotSelected = _selectedKinds.isEmpty && _selectedPokemonTypes.isEmpty && !_onlyForExchange && !_onlyForSale;
+    final filterNotSelected = _selectedKinds.isEmpty &&
+        _selectedPokemonTypes.isEmpty &&
+        !_onlyForExchange &&
+        !_onlyForSale;
 
     return ContainerWithBg(
       child: Scaffold(
@@ -392,25 +416,36 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                 fontSize: 26.0),
           ),
           actionsWidget: [
-            if (notFilteredCardList.isNotEmpty) 
-            IconButton(
-              onPressed: () {
-                changeListViewType();
-              }, 
-              icon:  Icon(showListGrid ? Symbols.view_cozy_rounded : Symbols.lists_rounded, color: Colors.white,)
-            ),
             if (notFilteredCardList.isNotEmpty)
-            IconButton(key: _filterIconKey,
-              onPressed: () => _openFiltersMenu(_filterIconKey),
-              icon: Icon(Icons.filter_list, color: filterNotSelected ? Colors.white : Colors.deepPurpleAccent),
-            ),
-            if (notFilteredCardList.isNotEmpty) 
               IconButton(
-                onPressed: () => showStatsModal(ref.read(pokemonCardsRepositoryProvider), _computeStats(notFilteredCardList), context),
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: Colors.white,
-                ))
+                  onPressed: () {
+                    changeListViewType();
+                  },
+                  icon: Icon(
+                    showListGrid
+                        ? Symbols.view_cozy_rounded
+                        : Symbols.lists_rounded,
+                    color: Colors.white,
+                  )),
+            if (notFilteredCardList.isNotEmpty)
+              IconButton(
+                key: _filterIconKey,
+                onPressed: () => _openFiltersMenu(_filterIconKey),
+                icon: Icon(Icons.filter_list,
+                    color: filterNotSelected
+                        ? Colors.white
+                        : Colors.deepPurpleAccent),
+              ),
+            if (notFilteredCardList.isNotEmpty)
+              IconButton(
+                  onPressed: () => showStatsModal(
+                      ref.read(pokemonCardsRepositoryProvider),
+                      _computeStats(notFilteredCardList),
+                      context),
+                  icon: const Icon(
+                    Icons.info_outline,
+                    color: Colors.white,
+                  ))
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -419,81 +454,84 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         body: Padding(
           padding: const EdgeInsets.only(left: 20, right: 20),
           child: Container(
-            child: cardsList.isEmpty
-                ? SizedBox(
-                    height: core.double.infinity,
-                    width: core.double.infinity,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset('assets/images/pokeballs.png'),
-                        Text(
-                          emptyTextHelper,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                        Text(
-                          emptySubtextHelper,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ))
-                : showListGrid ? GridView.builder(
-                    padding: EdgeInsets.only(
-                        top: appBarheight + 10.0, bottom: bottomTabHeight + 10),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 15,
-                      crossAxisSpacing: 15,
-                      childAspectRatio: 2 / 2.8,
-                    ),
-                    itemCount: cardsList.length,
-                    itemBuilder: (BuildContext context, core.int index) {
-                      return Stack(clipBehavior: Clip.none, children: [
-                        CardWithRippleAndFlipV2(
-                          isAlreadyOnList: true,
-                          currentPokemon: cardsList[index],
-                          tag: cardsList[index].image ?? '', 
-                          imageURL: cardsList[index].image ?? '',
-                          onLongPress: () =>
-                              cardLongPressDialog(cardsList[index]),
-                        ),
-                        Positioned(
-                            top: -12,
-                            right: 3,
-                            child: Row(
+              child: cardsList.isEmpty
+                  ? SizedBox(
+                      height: core.double.infinity,
+                      width: core.double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/images/pokeballs.png'),
+                          Text(
+                            emptyTextHelper,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          Text(
+                            emptySubtextHelper,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ))
+                  : showListGrid
+                      ? GridView.builder(
+                          padding: EdgeInsets.only(
+                              top: appBarheight + 10.0,
+                              bottom: bottomTabHeight + 10),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 15,
+                            crossAxisSpacing: 15,
+                            childAspectRatio: 2 / 2.8,
+                          ),
+                          itemCount: cardsList.length,
+                          itemBuilder: (BuildContext context, core.int index) {
+                            return Stack(clipBehavior: Clip.none, children: [
+                              CardWithRippleAndFlipV2(
+                                isAlreadyOnList: true,
+                                currentPokemon: cardsList[index],
+                                tag: cardsList[index].image ?? '',
+                                imageURL: cardsList[index].image ?? '',
+                                onLongPress: () =>
+                                    cardLongPressDialog(cardsList[index]),
+                              ),
+                              Positioned(
+                                  top: -12,
+                                  right: 3,
+                                  child: Row(
+                                    textDirection: TextDirection.rtl,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: getBadges(cardsList[index]),
+                                  ))
+                            ]);
+                          },
+                        )
+                      : Padding(
+                          padding: EdgeInsets.only(
+                            top: appBarheight + 10.0,
+                            bottom: bottomTabHeight + 10,
+                          ),
+                          child: CardsCategorizedListView(
+                            cards: cardsList,
+                            onLongPress: (card) => cardLongPressDialog(card),
+                            // Injeta seu overlay de badges pra manter consistência
+                            buildBadgeOverlay: (card) => Row(
                               textDirection: TextDirection.rtl,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: getBadges(cardsList[index]),
-                            ))
-                      ]);
-                    },
-                  ) : 
-                  Padding(
-                      padding: EdgeInsets.only(
-                        top: appBarheight + 10.0,
-                        bottom: bottomTabHeight + 10,
-                      ),
-                      child: CardsCategorizedListView(
-                        cards: cardsList,
-                        onLongPress: (card) => cardLongPressDialog(card),
-                        // Injeta seu overlay de badges pra manter consistência
-                        buildBadgeOverlay: (card) => Row(
-                          textDirection: TextDirection.rtl,
-                          children: getBadges(card),
-                        ),
-                      ),
-                    )),
-          ),
+                              children: getBadges(card),
+                            ),
+                          ),
+                        )),
         ),
-      );
+      ),
+    );
   }
 }
 

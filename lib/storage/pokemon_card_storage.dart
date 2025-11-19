@@ -17,7 +17,7 @@ class PokemonCardStorage {
   Future<void> removePokemon(PokemonCard pkmn) async {
     List<PokemonCard> cardList = await getPokemonCardList();
 
-    cardList.removeWhere((card) => card.id == pkmn.id);
+    cardList.removeWhere((card) => card.uniqueId == pkmn.uniqueId);
 
     await savePokemonCardList(cardList);
   }

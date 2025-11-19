@@ -2,9 +2,10 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/models/card_list_item_model.dart';
+import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/screens/search_card_detail_screen/components/flip_card.dart';
-import 'package:card_keeper/screens/search_card_detail_screen/components/add_edit_card_modal.dart';
+import 'package:card_keeper/widgets/add_edit_card_modal.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,7 @@ class SearchCardDetailPage extends ConsumerStatefulWidget {
 
 class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
   PokemonCard? currentPokemon;
+  List<PokemonCard?> pokemonVariants = [];
 
   late PokemonCardsController _detailController;
 
@@ -35,7 +37,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
     _detailController = PokemonCardsController(ref: ref);
 
-    setIsOnListValue();
     getCurrentPokemon();
   }
 
@@ -44,25 +45,33 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     super.dispose();
   }
 
-  void setIsOnListValue() {
+  void setIsOnListValue(CardVariant? cardVariant) {
+    final cardId = widget.card.id ?? '';
+    final variant = cardVariant ?? currentPokemon?.variant ?? CardVariant.normal;
+
     setState(() {
       _isOnList =
-          _detailController.pokemonIsAlreadyOnList(widget.card.id ?? '');
+          _detailController.pokemonIsAlreadyOnList(cardId, variant);
     });
   }
 
   void getCurrentPokemon() async {
-    PokemonCard? pkm;
-    pkm = await _detailController.getCard(widget.card.id ?? '');
+    List<PokemonCard?> pkmList;
+    pkmList = await _detailController.getCardAllVariants(widget.card.id ?? '');
 
-    if (pkm != null) {
+    if (pkmList.isNotEmpty) {
       setState(() {
-        currentPokemon = pkm as PokemonCard;
+        pokemonVariants = pkmList;
+        currentPokemon = pkmList.first as PokemonCard;
       });
+      
+      setIsOnListValue(pkmList.first!.variant);
+    } else {
+      setIsOnListValue(null);
     }
   }
 
-  void saveCardOnList(int quantity, bool isAvailableForSale, bool isAvailableForTrade) {
+  void saveCardOnList(int quantity, bool isAvailableForSale, bool isAvailableForTrade, CardVariant cardVariant) {
     setState(() {
       isLoading = !isLoading;
     });
@@ -72,6 +81,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     newCard.cardQuantity = quantity;
     newCard.isAvailableForSale = isAvailableForSale;
     newCard.isAvailableForExchange = isAvailableForTrade;
+    newCard.variant = cardVariant;
 
     if(_isOnList) {
       _detailController.updateCard(newCard);
@@ -86,9 +96,6 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
     getCurrentPokemon();
 
-
-    setIsOnListValue();
-
     setState(() {
       isLoading = !isLoading;
     });
@@ -100,14 +107,21 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
         .then((reason) {});
   }
 
-  void removeCardFromList() async {
+  void removeCardFromList(CardVariant cardVariant) async {
     setState(() {
       isLoading = !isLoading;
     });
 
-    await _detailController.removeCard(currentPokemon as PokemonCard);
+    final PokemonCard cardToBeDeleted = pokemonVariants
+      .whereType<PokemonCard>()
+      .firstWhere(
+        (c) => c.variant == cardVariant,
+        orElse: () => currentPokemon!, // fallback de segurança
+      );
 
-    setIsOnListValue();
+    await _detailController.removeCard(cardToBeDeleted);
+
+    getCurrentPokemon();
 
     setState(() {
       isLoading = !isLoading;
@@ -133,7 +147,13 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
         showDragHandle: true,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return ModalBottomSheet(isAlreadyOnList: _isOnList, card: currentPokemon as PokemonCard, saveCard: saveCardOnList, removeCard: removeCardFromList,);
+          return ModalBottomSheet(
+            isAlreadyOnList: _isOnList, 
+            card: currentPokemon as PokemonCard, 
+            saveCard: saveCardOnList, 
+            removeCard: removeCardFromList,
+            variants: pokemonVariants,
+          );
         });
   }
 

@@ -11,6 +11,10 @@ class PokemonCardsRepository extends StateNotifier<List<PokemonCard>> {
     return state.where((pk) => pk.id == id).firstOrNull;
   }
 
+  List<PokemonCard?> searchCardVariants(String id) {
+    return state.where((card) => card.id == id).toList();
+  }
+
   PokemonCard? searchByUniqueId(String uniqueId) {
     return state.where((pk) => pk.uniqueId == uniqueId).firstOrNull;
   }

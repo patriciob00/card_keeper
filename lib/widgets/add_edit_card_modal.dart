@@ -1,3 +1,5 @@
+import 'package:card_keeper/data/models/card_variant.dart';
+
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/providers/enums.dart';
 import 'package:card_keeper/widgets/custom_switch.dart';
@@ -6,14 +8,20 @@ import 'package:material_symbols_icons/symbols.dart';
 
 class ModalBottomSheet extends StatefulWidget {
   final PokemonCard? card;
+  final List<PokemonCard?> variants;
   final Function(
-      int quantity, bool isAvailableForSale, bool isAvailableForTrade) saveCard;
-  final Function removeCard;
+      int quantity, 
+      bool isAvailableForSale, 
+      bool isAvailableForTrade, 
+      CardVariant variant
+  ) saveCard;
+  final Function (CardVariant variant) removeCard;
   final bool isAlreadyOnList;
 
   const ModalBottomSheet(
       {super.key,
       this.card,
+      required this.variants,
       required this.saveCard,
       this.isAlreadyOnList = false,
       required this.removeCard});
@@ -56,17 +64,74 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
   int cardQuantity = 1;
   bool isHolo = false;
   bool isReverse = false;
+  CardVariant currentVariant = CardVariant.normal;
+  PokemonCard? currentCard;
+  bool currentIsAlreadyOnList = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.card != null && widget.isAlreadyOnList) {
       setState(() {
+        currentCard = widget.card;
         cardQuantity = widget.card?.cardQuantity ?? 1;
         isAvailableForSale = widget.card!.isAvailableForSale as bool;
         isAvailableForTrade = widget.card!.isAvailableForExchange as bool;
+        currentIsAlreadyOnList = widget.isAlreadyOnList;
+        
+        currentVariant = widget.card?.variant ?? CardVariant.normal;
+
+        // set holo and reverse switches
+        isHolo = currentVariant.isHolo;
+        isReverse = currentVariant.isReverse;
       });
     }
+  }
+
+  void _setVariant(CardVariant variant) {
+    final existing = widget.variants
+        .whereType<PokemonCard>()
+        .where((c) => c.id == widget.card?.id && c.variant == variant)
+        .toList()
+        .firstOrNull;
+
+    setState(() {
+      currentVariant = variant;
+
+      if (variant == CardVariant.holo) {
+        isHolo = true;
+        isReverse = false;
+      } else if (variant == CardVariant.reverse) {
+        isReverse = true;
+        isHolo = false;
+      } else {
+        isHolo = false;
+        isReverse = false;
+      }
+
+      if (existing != null) {
+        currentCard = existing;
+        cardQuantity = existing.cardQuantity ?? 1;
+        isAvailableForSale = existing.isAvailableForSale ?? false;
+        isAvailableForTrade = existing.isAvailableForExchange ?? false;
+        currentIsAlreadyOnList = true;
+      } else {
+        final base = (widget.variants.whereType<PokemonCard>().firstOrNull) ??
+            widget.card!;
+
+        final newCard = PokemonCard.fromJson(base.toJson());
+        newCard.variant = variant;
+        newCard.cardQuantity = 1;
+        newCard.isAvailableForSale = false;
+        newCard.isAvailableForExchange = false;
+
+        currentCard = newCard;
+        cardQuantity = 1;
+        isAvailableForSale = false;
+        isAvailableForTrade = false;
+        currentIsAlreadyOnList = false;
+      }
+    });
   }
 
   void addQuantity() {
@@ -94,34 +159,35 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
   }
 
   void onChangeIsHolo(bool value) {
-    setState(() {
-      isHolo = value;
-    });
-
-    if (value == true) {
-      setState(() {
-        isReverse = false;
-      });
+    if (value) {
+      _setVariant(CardVariant.holo);
+    } else {
+      if (isReverse) {
+        _setVariant(CardVariant.reverse);
+      } else {
+        _setVariant(CardVariant.normal);
+      }
     }
   }
 
   void onChangeIsReverse(bool value) {
-    setState(() {
-      isReverse = value;
-    });
-
-    if (value == true) {
-      setState(() {
-        isHolo = false;
-      });
+    if (value) {
+      _setVariant(CardVariant.reverse);
+    } else {
+      if (isHolo) {
+        _setVariant(CardVariant.holo);
+      } else {
+        _setVariant(CardVariant.normal);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    PokemonCard? card = widget.card;
+    PokemonCard? card = currentCard ?? widget.card;
     final bool hasHoloOption = card?.variants?.holo == true;
     final bool hasReverseOption = card?.variants?.reverse == true;
+    final bool isOnList = currentIsAlreadyOnList;
 
     return SafeArea(
       child: Padding(
@@ -167,10 +233,12 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
                           isActive: isReverse,
                         ),
                       ActionsRow(
+                          isOnList: isOnList,
                           widget: widget,
                           cardQuantity: cardQuantity,
                           isAvailableForSale: isAvailableForSale,
-                          isAvailableForTrade: isAvailableForTrade)
+                          isAvailableForTrade: isAvailableForTrade,
+                          cardVariant: currentVariant)
                     ],
                   ),
                 )
@@ -314,15 +382,20 @@ class ActionsRow extends StatelessWidget {
     required this.cardQuantity,
     required this.isAvailableForSale,
     required this.isAvailableForTrade,
+    required this.cardVariant,
+    required this.isOnList,
   });
 
   final ModalBottomSheet widget;
   final int cardQuantity;
   final bool isAvailableForSale;
   final bool isAvailableForTrade;
+  final CardVariant cardVariant;
+  final bool isOnList;
 
   @override
   Widget build(BuildContext context) {
+    final bool _isOnList = isOnList;
     return Padding(
       padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
       child: Row(
@@ -333,7 +406,10 @@ class ActionsRow extends StatelessWidget {
               ),
               onPressed: () {
                 widget.saveCard(
-                    cardQuantity, isAvailableForSale, isAvailableForTrade);
+                    cardQuantity, 
+                    isAvailableForSale, 
+                    isAvailableForTrade, 
+                    cardVariant);
                 Navigator.pop(context);
               },
               child: const Row(
@@ -354,12 +430,12 @@ class ActionsRow extends StatelessWidget {
                 ],
               )),
           const Spacer(),
-          widget.isAlreadyOnList
+          _isOnList
               ? ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent),
                   onPressed: () {
-                    widget.removeCard();
+                    widget.removeCard(cardVariant);
                     Navigator.pop(context);
                   },
                   child: const Row(

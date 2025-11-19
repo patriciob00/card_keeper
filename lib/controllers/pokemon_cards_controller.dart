@@ -1,3 +1,4 @@
+import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/models/search_history_item.dart';
 import 'package:card_keeper/data/service/poke_card_service.dart';
@@ -42,6 +43,33 @@ class PokemonCardsController {
     return null;
   }
 
+  Future<List<PokemonCard?>> getCardAllVariants(String cardId) async {
+    final List<PokemonCard?> foundVariantsOnList =
+        ref.read(pokemonCardsRepositoryProvider.notifier).searchCardVariants(cardId);
+
+    if(foundVariantsOnList.isNotEmpty) return foundVariantsOnList;
+
+    final foundOnSearchCache = ref.read(pokemonCardsSearchProvider.notifier).searchCard(cardId);
+
+    if(foundOnSearchCache != null) return [foundOnSearchCache];
+
+    late PokemonCard? pokemonCard;
+    final pokeCardService = PokeCardService();
+    pokemonCard = await pokeCardService.getCardById(cardId);
+
+    if (pokemonCard != null) { 
+      pokemonCard.image = '${pokemonCard.image}/high.webp';
+
+      if(pokemonCard.pokemonCardSet?.logo != null) {
+        pokemonCard.pokemonCardSet!.logo = '${pokemonCard.pokemonCardSet?.logo}.webp';
+      }
+      ref.read(pokemonCardsSearchProvider.notifier).addCard(pokemonCard);
+      return [pokemonCard];  
+    }
+
+    return [];
+  }
+
   Future<void> saveCard(PokemonCard pokemonCard) async {
     final repo = ref.read(pokemonCardsRepositoryProvider.notifier);
     await repo.addCard(pokemonCard);
@@ -63,10 +91,12 @@ class PokemonCardsController {
     await _pkmnStorage.updatePokemon(pokemonCard);
   }
 
-  bool pokemonIsAlreadyOnList(String cardId) {
+  bool pokemonIsAlreadyOnList(String cardId, CardVariant cardVariant) {
     final repo = ref.read(pokemonCardsRepositoryProvider.notifier);
-    final variants = repo.getVariants(cardId);
-    return variants.isNotEmpty;
+    return repo
+        .getVariants(cardId)
+        .whereType<PokemonCard>()
+        .any((c) => c.variant == cardVariant);
   }
 
   bool variantExists(String uniqueId) {
