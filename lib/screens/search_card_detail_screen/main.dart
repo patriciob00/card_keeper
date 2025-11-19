@@ -83,7 +83,12 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     newCard.isAvailableForExchange = isAvailableForTrade;
     newCard.variant = cardVariant;
 
-    if(_isOnList) {
+    final bool variantAlreadyOnList = _detailController.pokemonIsAlreadyOnList(
+          widget.card.id ?? '',
+          cardVariant,
+        );
+
+    if(variantAlreadyOnList) {
       _detailController.updateCard(newCard);
     } else {
       newCard.addedAt = DateTime.now();
@@ -92,7 +97,7 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
 
     SnackBar snackBar = SnackBar(
         duration: const Duration(seconds: 3),
-        content: Text(_isOnList ? 'O Card foi atualizado!' : 'O Card foi adicionado a sua lista de cards!'));
+        content: Text(variantAlreadyOnList ? 'O Card foi atualizado!' : 'O Card foi adicionado a sua lista de cards!'));
 
     getCurrentPokemon();
 

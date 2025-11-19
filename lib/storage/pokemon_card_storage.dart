@@ -24,7 +24,7 @@ class PokemonCardStorage {
 
   Future<void> updatePokemon(PokemonCard pkmn) async {
     List<PokemonCard> cardList = await getPokemonCardList();
-    int index = cardList.indexWhere((p) => p.id == pkmn.id);
+    int index = cardList.indexWhere((p) => p.uniqueId == pkmn.uniqueId);
     cardList[index] = pkmn;
     await savePokemonCardList(cardList);
   }
