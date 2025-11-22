@@ -3,10 +3,12 @@ import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
 import 'package:card_keeper/screens/cards_list_screen/cards_categorized_list_view.dart';
+import 'package:card_keeper/screens/cards_list_screen/cards_grid_view.dart';
 import 'package:card_keeper/screens/cards_list_screen/no_cards_view.dart';
 import 'package:card_keeper/screens/cards_list_screen/utils/card_status.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/badge_custom.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/cards_filter_menu_content.dart';
+import 'package:card_keeper/screens/cards_list_screen/widgets/search_fab.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/stats_modal.dart';
 import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
@@ -18,36 +20,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:card_keeper/screens/cards_list_screen/utils/filter_functions.dart';
-import 'dart:core' as core;
 
 class CardListScreen extends ConsumerStatefulWidget {
   const CardListScreen(
       {super.key, required this.currentIdx, required this.onTap});
 
-  final core.int currentIdx;
-  final Function(core.int idx) onTap;
+  final int currentIdx;
+  final Function(int idx) onTap;
 
-  @core.override
+  @override
   ConsumerState<CardListScreen> createState() => _CardListScreenState();
 }
 
 class _CardListScreenState extends ConsumerState<CardListScreen> {
   // Filtros
-  final core.Set<CardKind> _selectedKinds = {}; // vazio = todos
-  final core.Set<core.String> _selectedPokemonTypes = {}; // vazio = todos
-  core.bool _onlyForSale = false;
-  core.bool _onlyForExchange = false;
-  final core.Set<CardVariant> _selectedVariants = {};
-  final core.Set<core.String> _selectedRarities = {};
+  final _selectedKinds = <CardKind>{};
+  final _selectedPokemonTypes = <String>{}; // vazio = todos
+  bool _onlyForSale = false;
+  bool _onlyForExchange = false;
+  final _selectedVariants = <CardVariant>{};
+  final _selectedRarities = <String>{};
+
+  String _searchQuery = '';
 
   // âncora do botão de filtro pra abrir o menu no lugar certo
   final GlobalKey _filterIconKey = GlobalKey();
 
-  CardsStats _computeStats(core.List<PokemonCard> cards) {
-    final perKind = <CardKind, core.int>{};
-    final perCollection = <core.String, core.int>{};
-    final pokemonPerType = <core.String, core.int>{};
-    final perVariant = <CardVariant, core.int>{};
+  CardsStats _computeStats(List<PokemonCard> cards) {
+    final perKind = <CardKind, int>{};
+    final perCollection = <String, int>{};
+    final pokemonPerType = <String, int>{};
+    final perVariant = <CardVariant, int>{};
 
     for (final c in cards) {
       final k = kindOf(c);
@@ -74,13 +77,16 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     );
   }
 
-  core.bool get isWeb => kIsWeb;
+  bool get isWeb => kIsWeb;
 
   late PokemonCardsController _pkmnCardsController;
 
-  core.bool showListGrid = true;
+  bool showListGrid = true;
 
-  @core.override
+  bool _showSearchBar = false;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
   void initState() {
     super.initState();
     _pkmnCardsController = PokemonCardsController(ref: ref);
@@ -97,8 +103,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     Navigator.pop(context);
   }
 
-  core.List<Widget> getBadges(PokemonCard card) {
-    core.List<Widget> list = [];
+  List<Widget> getBadges(PokemonCard card) {
+    List<Widget> list = [];
 
     list.add(BadgeCustom(
         child: Text(
@@ -129,7 +135,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
     final variant = card.variant ?? CardVariant.normal;
     if (variant != CardVariant.normal) {
-      final core.bool isHoloVariant = variant == CardVariant.holo;
+      final bool isHoloVariant = variant == CardVariant.holo;
       list.add(BadgeCustom(
           child: Text(
         isHoloVariant ? 'H' : 'R',
@@ -142,7 +148,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     return list;
   }
 
-  core.Future<void> cardLongPressDialog(PokemonCard card) async {
+  Future<void> cardLongPressDialog(PokemonCard card) async {
     final size = MediaQuery.of(context).size;
     showDialog(
         context: context,
@@ -150,7 +156,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         builder: (context) => GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
-                height: core.double.infinity,
+                height: double.infinity,
                 decoration:
                     BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
                 child: Column(
@@ -195,10 +201,9 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
   }
 
   // Aplica TODOS os filtros
-  core.List<PokemonCard> get _filteredCards {
-    final cards =
-        ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
-    return cards.where((c) {
+  List<PokemonCard> get _filteredCards {
+    final cards = ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider);
+    final filtered = cards.where((c) {
       final kind = kindOf(c);
 
       final okKind = _selectedKinds.isEmpty || _selectedKinds.contains(kind);
@@ -227,9 +232,19 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
           okVariant &&
           okRarity;
     }).toList();
+
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase().trim();
+      return filtered.where((card) {
+        final name = (card.name ?? '').toLowerCase();
+        return name.contains(q);
+      }).toList();
+    }
+
+    return filtered;
   }
 
-  core.Future<void> _openFiltersMenu(GlobalKey anchorKey) async {
+  Future<void> _openFiltersMenu(GlobalKey anchorKey) async {
     // Pega posição do ícone
     final renderBox =
         anchorKey.currentContext?.findRenderObject() as RenderBox?;
@@ -248,7 +263,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
     // raridades disponíveis (da lista completa)
     final allCards =
-        ref.read<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
+        ref.read<List<PokemonCard>>(pokemonCardsRepositoryProvider);
 
     final availableRarities = allCards
         .map((c) => (c.rarity ?? '').trim())
@@ -306,13 +321,13 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     );
   }
 
-  @core.override
+  @override
   Widget build(BuildContext context) {
-    core.double appBarheight = Scaffold.of(context).appBarMaxHeight ?? 60;
-    core.double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
+    double appBarheight = Scaffold.of(context).appBarMaxHeight ?? 60;
+    double bottomTabHeight = const NavigationBarThemeData().height ?? 80;
 
     final notFilteredCardList =
-        ref.watch<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
+        ref.watch<List<PokemonCard>>(pokemonCardsRepositoryProvider);
 
     final cardsList = _filteredCards;
 
@@ -378,6 +393,26 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
         extendBody: true,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: notFilteredCardList.isEmpty
+            ? null
+            : SearchFAB(
+                showSearchBar: _showSearchBar,
+                searchController: _searchController,
+                onChangetext: (value) {
+                  setState(() {
+                    _searchQuery = value.trim();
+                  });
+                },
+                onToggleFAB: () {
+                  setState(() {
+                    _showSearchBar = !_showSearchBar;
+                    if (!_showSearchBar) {
+                      _searchController.clear();
+                      _searchQuery = '';
+                    }
+                  });
+                }),
         body: Padding(
           padding: const EdgeInsets.only(left: 20, right: 20),
           child: Container(
@@ -386,42 +421,12 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                       emptyTextHelper: emptyTextHelper,
                       emptySubtextHelper: emptySubtextHelper)
                   : showListGrid
-                      ? GridView.builder(
-                          padding: EdgeInsets.only(
-                              top: appBarheight + 10.0,
-                              bottom: bottomTabHeight + 10),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 15,
-                            crossAxisSpacing: 15,
-                            childAspectRatio: 2 / 2.8,
-                          ),
-                          itemCount: cardsList.length,
-                          itemBuilder: (BuildContext context, core.int index) {
-                            return Stack(clipBehavior: Clip.none, children: [
-                              CardWithRippleAndFlip(
-                                isAlreadyOnList: true,
-                                currentPokemon: cardsList[index],
-                                tag: cardsList[index].image ?? '',
-                                imageURL: cardsList[index].image ?? '',
-                                onLongPress: () =>
-                                    cardLongPressDialog(cardsList[index]),
-                              ),
-                              Positioned(
-                                  top: -12,
-                                  right: 3,
-                                  child: Row(
-                                    textDirection: TextDirection.rtl,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: getBadges(cardsList[index]),
-                                  ))
-                            ]);
-                          },
-                        )
+                      ? CardsGridView(
+                        appBarheight: appBarheight, 
+                        bottomTabHeight: bottomTabHeight, 
+                        cardsList: cardsList, 
+                        cardLongPressDialog: cardLongPressDialog, 
+                        getBadges: getBadges)
                       : Padding(
                           padding: EdgeInsets.only(
                             top: appBarheight + 10.0,
@@ -440,5 +445,11 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }

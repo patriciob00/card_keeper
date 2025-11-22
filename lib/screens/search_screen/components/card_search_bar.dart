@@ -23,7 +23,7 @@ class CardSearchBar extends StatelessWidget {
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
           filled: true,
-          fillColor: Colors.black.withOpacity(0.5),
+          fillColor: Colors.black.withValues(alpha: .5),
           border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(36)),
               borderSide: BorderSide(
