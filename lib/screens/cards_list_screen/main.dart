@@ -1,11 +1,14 @@
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/data/providers/enums.dart';
 import 'package:card_keeper/repositories/pokemon_cards_repository.dart';
 import 'package:card_keeper/screens/cards_list_screen/cards_categorized_list_view.dart';
+import 'package:card_keeper/screens/cards_list_screen/no_cards_view.dart';
+import 'package:card_keeper/screens/cards_list_screen/utils/card_status.dart';
+import 'package:card_keeper/screens/cards_list_screen/widgets/badge_custom.dart';
+import 'package:card_keeper/screens/cards_list_screen/widgets/cards_filter_menu_content.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/stats_modal.dart';
-import 'package:card_keeper/widgets/card_with_ripple_and_flip_v2.dart';
+import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:card_keeper/widgets/image_cached.dart';
@@ -16,19 +19,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:card_keeper/screens/cards_list_screen/utils/filter_functions.dart';
 import 'dart:core' as core;
-
-class CardsStats {
-  final core.int total;
-  final core.Map<CardKind, core.int> perKind;
-  final core.Map<core.String, core.int> perColection;
-  final core.Map<core.String, core.int> pokemonPerType;
-  CardsStats({
-    required this.total,
-    required this.perKind,
-    required this.perColection,
-    required this.pokemonPerType,
-  });
-}
 
 class CardListScreen extends ConsumerStatefulWidget {
   const CardListScreen(
@@ -47,6 +37,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
   final core.Set<core.String> _selectedPokemonTypes = {}; // vazio = todos
   core.bool _onlyForSale = false;
   core.bool _onlyForExchange = false;
+  final core.Set<CardVariant> _selectedVariants = {};
+  final core.Set<core.String> _selectedRarities = {};
 
   // âncora do botão de filtro pra abrir o menu no lugar certo
   final GlobalKey _filterIconKey = GlobalKey();
@@ -55,6 +47,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     final perKind = <CardKind, core.int>{};
     final perCollection = <core.String, core.int>{};
     final pokemonPerType = <core.String, core.int>{};
+    final perVariant = <CardVariant, core.int>{};
 
     for (final c in cards) {
       final k = kindOf(c);
@@ -68,6 +61,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
           pokemonPerType[t] = (pokemonPerType[t] ?? 0) + 1;
         }
       }
+
+      perVariant[c.variant!] = (perVariant[c.variant] ?? 0) + 1;
     }
 
     return CardsStats(
@@ -75,6 +70,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
       perKind: perKind,
       perColection: perCollection,
       pokemonPerType: pokemonPerType,
+      perVariant: perVariant,
     );
   }
 
@@ -130,7 +126,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
         ),
       ));
     }
-    
+
     final variant = card.variant ?? CardVariant.normal;
     if (variant != CardVariant.normal) {
       final core.bool isHoloVariant = variant == CardVariant.holo;
@@ -170,7 +166,9 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                           tag: card.image ?? '',
                           child: ImageCached(
                             imageURL: card.image ?? '',
-                            showHoloEffect: true,
+                            showHoloEffect: card.variant?.isHolo ?? false,
+                            showReverseHoloEffect:
+                                card.variant?.isReverse ?? false,
                           )),
                     ),
                     Padding(
@@ -214,7 +212,20 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
       final okExchange =
           !_onlyForExchange || (c.isAvailableForExchange == true);
 
-      return okKind && okPokeType && okSale && okExchange;
+      final variant = c.variant ?? CardVariant.normal;
+      final okVariant =
+          _selectedVariants.isEmpty || _selectedVariants.contains(variant);
+
+      final rarity = (c.rarity ?? '').trim();
+      final okRarity = _selectedRarities.isEmpty ||
+          _selectedRarities.contains(rarity.isEmpty ? '—' : rarity);
+
+      return okKind &&
+          okPokeType &&
+          okSale &&
+          okExchange &&
+          okVariant &&
+          okRarity;
     }).toList();
   }
 
@@ -235,11 +246,16 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
       Offset.zero & overlay.size,
     );
 
-    // Trabalha com cópias até o usuário confirmar
-    final draftKinds = core.Set<CardKind>.from(_selectedKinds);
-    final draftTypes = core.Set<core.String>.from(_selectedPokemonTypes);
-    core.bool draftSale = _onlyForSale;
-    core.bool draftExchange = _onlyForExchange;
+    // raridades disponíveis (da lista completa)
+    final allCards =
+        ref.read<core.List<PokemonCard>>(pokemonCardsRepositoryProvider);
+
+    final availableRarities = allCards
+        .map((c) => (c.rarity ?? '').trim())
+        .where((r) => r.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
 
     await showMenu(
       context: context,
@@ -247,136 +263,45 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
       constraints: const BoxConstraints.tightFor(width: 320),
       items: [
         PopupMenuItem(
-          enabled: false, // evita hover/seleção do item inteiro
-          padding: EdgeInsets.zero,
-          child: StatefulBuilder(
-            builder: (ctx, setLocalState) {
-              // UI dos Chips
-              Widget kindChip(CardKind k) {
-                final selected = draftKinds.contains(k);
-                return FilterChip(
-                  selected: selected,
-                  label: Text(kindLabel(k)),
-                  onSelected: (_) {
-                    setLocalState(() {
-                      if (selected) {
-                        draftKinds.remove(k);
-                      } else {
-                        draftKinds.add(k);
-                      }
-                    });
-                  },
-                );
-              }
-
-              Widget typeChip(PokemonTypesIcon t) {
-                final selected = draftTypes.contains(t.typeName);
-                return FilterChip(
-                  selected: selected,
-                  avatar: Image.asset(t.iconSrc, width: 18, height: 18),
-                  label: Text(t.typeName),
-                  onSelected: (_) {
-                    setLocalState(() {
-                      if (selected) {
-                        draftTypes.remove(t.typeName);
-                      } else {
-                        draftTypes.add(t.typeName);
-                      }
-                    });
-                  },
-                );
-              }
-
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _SectionTitle('Tipo de carta'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: CardKind.values.map(kindChip).toList(),
-                    ),
-                    const SizedBox(height: 12),
-                    const _SectionTitle('Tipos de Pokémon'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: PokemonTypesIcon.values.map(typeChip).toList(),
-                    ),
-                    const SizedBox(height: 12),
-                    const _SectionTitle('Disponibilidade'),
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        FilterChip(
-                          selected: draftSale,
-                          label: const Text('À venda'),
-                          avatar: const Icon(
-                            Symbols.attach_money_rounded,
-                            size: 18,
-                            color: Colors.lightGreen,
-                          ),
-                          onSelected: (_) =>
-                              setLocalState(() => draftSale = !draftSale),
-                        ),
-                        FilterChip(
-                          selected: draftExchange,
-                          label: const Text('Para troca'),
-                          avatar: const Icon(
-                            Symbols.sync_alt_rounded,
-                            size: 18,
-                            color: Colors.orange,
-                          ),
-                          onSelected: (_) => setLocalState(
-                              () => draftExchange = !draftExchange),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 20),
-                    Row(
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _selectedKinds.clear();
-                              _selectedPokemonTypes.clear();
-                              _onlyForSale = false;
-                              _onlyForExchange = false;
-                            });
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.clear),
-                          label: const Text('Limpar'),
-                        ),
-                        const Spacer(),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                              backgroundColor: Colors.lightGreen),
-                          onPressed: () {
-                            setState(() {
-                              _selectedKinds
-                                ..clear()
-                                ..addAll(draftKinds);
-                              _selectedPokemonTypes
-                                ..clear()
-                                ..addAll(draftTypes);
-                              _onlyForSale = draftSale;
-                              _onlyForExchange = draftExchange;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Aplicar'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
+            enabled: false, // evita hover/seleção do item inteiro
+            padding: EdgeInsets.zero,
+            child: CardsFilterMenuContent(
+                initialKinds: _selectedKinds,
+                initialTypes: _selectedPokemonTypes,
+                initialVariants: _selectedVariants,
+                initialRarities: _selectedRarities,
+                availableRarities: availableRarities,
+                initialOnlyForSale: _onlyForSale,
+                initialOnlyForExchange: _onlyForExchange,
+                onApply:
+                    (kinds, types, variants, rarities, onlySale, onlyExchange) {
+                  setState(() {
+                    _selectedKinds
+                      ..clear()
+                      ..addAll(kinds);
+                    _selectedPokemonTypes
+                      ..clear()
+                      ..addAll(types);
+                    _selectedVariants
+                      ..clear()
+                      ..addAll(variants);
+                    _selectedRarities
+                      ..clear()
+                      ..addAll(rarities);
+                    _onlyForSale = onlySale;
+                    _onlyForExchange = onlyExchange;
+                  });
+                },
+                onClear: () {
+                  setState(() {
+                    _selectedKinds.clear();
+                    _selectedPokemonTypes.clear();
+                    _selectedVariants.clear();
+                    _selectedRarities.clear();
+                    _onlyForSale = false;
+                    _onlyForExchange = false;
+                  });
+                })),
       ],
     );
   }
@@ -401,6 +326,8 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
 
     final filterNotSelected = _selectedKinds.isEmpty &&
         _selectedPokemonTypes.isEmpty &&
+        _selectedVariants.isEmpty &&
+        _selectedRarities.isEmpty &&
         !_onlyForExchange &&
         !_onlyForSale;
 
@@ -455,28 +382,9 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
           padding: const EdgeInsets.only(left: 20, right: 20),
           child: Container(
               child: cardsList.isEmpty
-                  ? SizedBox(
-                      height: core.double.infinity,
-                      width: core.double.infinity,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset('assets/images/pokeballs.png'),
-                          Text(
-                            emptyTextHelper,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                          Text(
-                            emptySubtextHelper,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ))
+                  ? NoCardsView(
+                      emptyTextHelper: emptyTextHelper,
+                      emptySubtextHelper: emptySubtextHelper)
                   : showListGrid
                       ? GridView.builder(
                           padding: EdgeInsets.only(
@@ -492,7 +400,7 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                           itemCount: cardsList.length,
                           itemBuilder: (BuildContext context, core.int index) {
                             return Stack(clipBehavior: Clip.none, children: [
-                              CardWithRippleAndFlipV2(
+                              CardWithRippleAndFlip(
                                 isAlreadyOnList: true,
                                 currentPokemon: cardsList[index],
                                 tag: cardsList[index].image ?? '',
@@ -529,60 +437,6 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                             ),
                           ),
                         )),
-        ),
-      ),
-    );
-  }
-}
-
-class BadgeCustom extends StatelessWidget {
-  const BadgeCustom({
-    super.key,
-    this.backgroundColor = Colors.white,
-    required this.child,
-  });
-
-  final Color backgroundColor;
-  final Widget child;
-
-  @core.override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      width: 16,
-      height: 16,
-      margin: const EdgeInsets.only(right: 5),
-      decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              spreadRadius: 3,
-              blurRadius: 3,
-              offset: const Offset(0, 1), // changes position of shadow
-            ),
-          ],
-          color: backgroundColor,
-          borderRadius: const BorderRadius.all(Radius.circular(16))),
-      child: child,
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-
-  final core.String text;
-
-  @core.override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 13,
-          color: Colors.black87,
         ),
       ),
     );

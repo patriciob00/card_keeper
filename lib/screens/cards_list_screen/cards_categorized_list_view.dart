@@ -1,5 +1,5 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/widgets/card_with_ripple_and_flip_v2.dart';
+import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
 import 'package:card_keeper/widgets/category_header.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
@@ -67,7 +67,7 @@ class CardsCategorizedListView extends StatelessWidget {
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            CardWithRippleAndFlipV2(
+                            CardWithRippleAndFlip(
                               isAlreadyOnList: true,
                               currentPokemon: card,
                               tag: tag,

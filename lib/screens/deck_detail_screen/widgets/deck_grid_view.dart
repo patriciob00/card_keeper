@@ -1,5 +1,5 @@
 import 'package:card_keeper/data/models/deck_model.dart';
-import 'package:card_keeper/widgets/card_with_ripple.dart';
+import 'package:card_keeper/widgets/card_with_ripple/main.dart';
 import 'package:flutter/material.dart';
 
 class DeckGridView extends StatelessWidget {

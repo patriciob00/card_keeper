@@ -5,11 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_keeper/data/providers/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/widgets/card_with_ripple.dart';
+import 'package:card_keeper/widgets/card_with_ripple/main.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class CardWithRippleAndFlipV2 extends StatefulWidget {
-  const CardWithRippleAndFlipV2({
+class CardWithRippleAndFlip extends StatefulWidget {
+  const CardWithRippleAndFlip({
     super.key,
     required this.tag,
     required this.imageURL,
@@ -33,10 +33,10 @@ class CardWithRippleAndFlipV2 extends StatefulWidget {
   final double aspectRatio;
 
   @override
-  State<CardWithRippleAndFlipV2> createState() => _CardWithRippleAndFlipState();
+  State<CardWithRippleAndFlip> createState() => _CardWithRippleAndFlipState();
 }
 
-class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlipV2>
+class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlip>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
   bool _isFront = true;
@@ -83,6 +83,9 @@ class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlipV2>
           final angle = _controller.value * pi; // 0 -> π
           final frontVisible = angle <= (pi / 2);
 
+          final bool showHoloEffect = widget.currentPokemon.variant?.isHolo ?? false;
+          final bool showReverseEffect = widget.currentPokemon.variant?.isReverse ?? false;
+
           return Transform(
             alignment: Alignment.center,
             transform: base(angle),
@@ -95,6 +98,8 @@ class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlipV2>
                         imageURL: widget.imageURL,
                         onTap: widget.onTap ?? _flip,
                         onLongPress: widget.onLongPress,
+                        showHoloEffect: showHoloEffect,
+                        showReverseHoloEffect: showReverseEffect,
                       ),
                     ),
                   )

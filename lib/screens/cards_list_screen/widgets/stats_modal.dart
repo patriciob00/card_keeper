@@ -1,6 +1,7 @@
+import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/providers/enums.dart';
-import 'package:card_keeper/screens/cards_list_screen/main.dart';
+import 'package:card_keeper/screens/cards_list_screen/utils/card_status.dart';
 import 'package:card_keeper/screens/cards_list_screen/utils/filter_functions.dart';
 import 'package:flutter/material.dart';
 
@@ -114,6 +115,66 @@ void showStatsModal(
                       children: [
                         Text(
                           kindLabel(k),
+                          style: const TextStyle(
+                            fontSize: 14, // ou 16
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          "$n",
+                          style: const TextStyle(
+                            fontSize: 20, // ou 18
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 22),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '- Variantes de cartas - ',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              Wrap(
+                spacing: 10,
+                children: CardVariant.values.map((k) {
+                  final n = stats.perVariant[k] ?? 0;
+                  final screenW = MediaQuery.of(context).size.width;
+                  final containerW = (screenW - 52) / 3;
+                  // 50% da tela, considerando margens e spacing (ajuste o "- (10*3)" conforme espaçamento/margem externa)
+      
+                  return Container(
+                    width: containerW,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.deepPurpleAccent,
+                        width: 2,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          k.label,
                           style: const TextStyle(
                             fontSize: 14, // ou 16
                             fontWeight: FontWeight.w500,

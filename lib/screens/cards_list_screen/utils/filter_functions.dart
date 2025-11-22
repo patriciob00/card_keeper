@@ -11,9 +11,9 @@ String kindLabel(CardKind k) {
 }
 
 CardKind kindOf(PokemonCard c) {
-    final cat = (c.category ?? '').toLowerCase();
-    if (cat.contains('pok') || cat == 'pokemon') return CardKind.pokemon;
-    if (cat.contains('ener') || cat == 'energy') return CardKind.energy;
-    return CardKind.trainer;
-  }
+  final cat = (c.category ?? '').toLowerCase();
+  if (cat.contains('pok') || cat == 'pokemon') return CardKind.pokemon;
+  if (cat.contains('ener') || cat == 'energy') return CardKind.energy;
+  return CardKind.trainer;
+}
 
