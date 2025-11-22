@@ -9,7 +9,7 @@ class HoloEffect extends StatelessWidget {
     return Shimmer.fromColors(
         baseColor: Colors.transparent,
         highlightColor: Colors.white70,
-        period: const Duration(milliseconds: 2500),
+        period: const Duration(milliseconds: 5500),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white60,

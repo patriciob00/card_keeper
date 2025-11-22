@@ -1,5 +1,6 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
+import 'package:card_keeper/widgets/card_ripple_flip_and_badges.dart';
+import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:flutter/material.dart';
 
 class CardsGridView extends StatelessWidget {
@@ -8,15 +9,27 @@ class CardsGridView extends StatelessWidget {
     required this.appBarheight,
     required this.bottomTabHeight,
     required this.cardsList,
-    required this.cardLongPressDialog,
-    required this.getBadges,
+    this.cardLongPress,
+    this.cardDoubleTap,
   });
 
   final double appBarheight;
   final double bottomTabHeight;
   final List<PokemonCard> cardsList;
-  final Function(PokemonCard card) cardLongPressDialog;
-  final List<Widget> Function(PokemonCard card) getBadges;
+  final void Function(PokemonCard? card)? cardLongPress;
+  final void Function(PokemonCard? card)? cardDoubleTap;
+
+  void _cardDoubleTap(PokemonCard card) {
+    if(cardDoubleTap != null) {
+      cardDoubleTap!(card);
+    }
+  }
+
+  void _cardLongPress(PokemonCard card) {
+    if(cardLongPress != null) {
+      cardLongPress!(card);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,25 +44,17 @@ class CardsGridView extends StatelessWidget {
       ),
       itemCount: cardsList.length,
       itemBuilder: (BuildContext context, int index) {
-        return Stack(clipBehavior: Clip.none, children: [
-          CardWithRippleAndFlip(
-            isAlreadyOnList: true,
-            currentPokemon: cardsList[index],
-            tag: cardsList[index].image ?? '',
-            imageURL: cardsList[index].image ?? '',
-            onLongPress: () => cardLongPressDialog(cardsList[index]),
+        PokemonCard currentCard = cardsList[index];
+        return HeroWidget(
+          tag: currentCard.uniqueId,
+          child: CardRippleFlipAndBadges(
+            disableHero: true,
+            tag: currentCard.uniqueId,
+            currentCard: currentCard,
+            cardDoubleTap: () => _cardDoubleTap(currentCard),
+            cardLongPress: () => _cardLongPress(currentCard),
           ),
-          Positioned(
-              top: -12,
-              right: 3,
-              child: Row(
-                textDirection: TextDirection.rtl,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: getBadges(cardsList[index]),
-              ))
-        ]);
+        );
       },
     );
   }

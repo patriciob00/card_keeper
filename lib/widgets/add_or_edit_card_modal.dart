@@ -1,36 +1,45 @@
+import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:card_keeper/data/models/card_variant.dart';
 
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/data/providers/enums.dart';
 import 'package:card_keeper/widgets/custom_switch.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class ModalBottomSheet extends StatefulWidget {
+class AddOrEditCardModal extends ConsumerStatefulWidget {
   final PokemonCard? card;
   final List<PokemonCard?> variants;
-  final Function(
-      int quantity, 
-      bool isAvailableForSale, 
-      bool isAvailableForTrade, 
-      CardVariant variant
-  ) saveCard;
-  final Function (CardVariant variant) removeCard;
   final bool isAlreadyOnList;
+  final bool? hideVariantsOption;
+  final void Function()? saveCallback;
+  final void Function()? removeCallback;
+  final void Function()? onListenerStartSaveCard;
+  final void Function()? onListenerFinishSaveCard;
+  final void Function()? onListenerStartRemoveCard;
+  final void Function()? onListenerFinishRemoveCard;
 
-  const ModalBottomSheet(
+  const AddOrEditCardModal(
       {super.key,
       this.card,
       required this.variants,
-      required this.saveCard,
       this.isAlreadyOnList = false,
-      required this.removeCard});
+      this.hideVariantsOption = false,
+      this.onListenerFinishRemoveCard,
+      this.onListenerFinishSaveCard,
+      this.onListenerStartRemoveCard,
+      this.onListenerStartSaveCard,
+      this.removeCallback,
+      this.saveCallback});
 
   @override
-  State<ModalBottomSheet> createState() => _ModalBottomSheetState();
+  ConsumerState<AddOrEditCardModal> createState() => _AddOrEditCardModalState();
 }
 
-class _ModalBottomSheetState extends State<ModalBottomSheet> {
+class _AddOrEditCardModalState extends ConsumerState<AddOrEditCardModal> {
+  late PokemonCardsController _pkmnCardsController;
+
   Widget typeIcon(String typeName) {
     PokemonTypesIcon? iconBadge = PokemonTypesIcon.values
         .where((t) => t.typeName == typeName)
@@ -67,10 +76,12 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
   CardVariant currentVariant = CardVariant.normal;
   PokemonCard? currentCard;
   bool currentIsAlreadyOnList = false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _pkmnCardsController = PokemonCardsController(ref: ref);
     if (widget.card != null && widget.isAlreadyOnList) {
       setState(() {
         currentCard = widget.card;
@@ -78,7 +89,7 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
         isAvailableForSale = widget.card!.isAvailableForSale as bool;
         isAvailableForTrade = widget.card!.isAvailableForExchange as bool;
         currentIsAlreadyOnList = widget.isAlreadyOnList;
-        
+
         currentVariant = widget.card?.variant ?? CardVariant.normal;
 
         // set holo and reverse switches
@@ -182,12 +193,104 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
     }
   }
 
+  void _saveCard(PokemonCard card) {
+    if (widget.onListenerStartSaveCard != null) {
+      widget.onListenerStartSaveCard!();
+    }
+
+    setState(() {
+      isLoading = !isLoading;
+    });
+
+    PokemonCard newCard = PokemonCard.fromJson(card.toJson());
+
+    newCard.cardQuantity = cardQuantity;
+    newCard.isAvailableForSale = isAvailableForSale;
+    newCard.isAvailableForExchange = isAvailableForTrade;
+    newCard.variant = currentVariant;
+
+    final bool variantAlreadyOnList =
+        _pkmnCardsController.pokemonIsAlreadyOnList(
+      card.id ?? '',
+      currentVariant,
+    );
+
+    if (variantAlreadyOnList) {
+      _pkmnCardsController.updateCard(newCard);
+    } else {
+      newCard.addedAt = DateTime.now();
+      _pkmnCardsController.saveCard(newCard);
+    }
+
+    SnackBar snackBar = SnackBar(
+        duration: const Duration(seconds: 3),
+        content: Text(variantAlreadyOnList
+            ? 'O Card foi atualizado!'
+            : 'O Card foi adicionado a sua lista de cards!'));
+
+    if (widget.saveCallback != null) {
+      widget.saveCallback!();
+    }
+
+    setState(() {
+      isLoading = !isLoading;
+    });
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(snackBar)
+        .closed
+        .then((reason) {});
+
+    if (widget.onListenerFinishSaveCard != null) {
+      widget.onListenerFinishSaveCard!();
+    }
+  }
+
+  void _removeCard(PokemonCard card) {
+    if (widget.onListenerStartRemoveCard != null) {
+      widget.onListenerStartRemoveCard!();
+    }
+    setState(() {
+      isLoading = !isLoading;
+    });
+
+    final PokemonCard cardToBeDeleted =
+        widget.variants.whereType<PokemonCard>().firstWhere(
+              (c) => c.variant == currentVariant,
+              orElse: () => card,
+            );
+
+    _pkmnCardsController.removeCard(cardToBeDeleted);
+
+    if (widget.removeCallback != null) {
+      widget.removeCallback!();
+    }
+
+    setState(() {
+      isLoading = !isLoading;
+    });
+
+    const snackBar = SnackBar(
+        duration: Duration(seconds: 3),
+        content: Text('O Card foi removido da sua lista de cards!'));
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(snackBar)
+        .closed
+        .then((reason) {});
+
+    if (widget.onListenerFinishRemoveCard != null) {
+      widget.onListenerFinishRemoveCard!();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     PokemonCard? card = currentCard ?? widget.card;
     final bool hasHoloOption = card?.variants?.holo == true;
     final bool hasReverseOption = card?.variants?.reverse == true;
     final bool isOnList = currentIsAlreadyOnList;
+    final bool? hideVariants = widget.hideVariantsOption;
 
     return SafeArea(
       child: Padding(
@@ -207,38 +310,39 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
                         add: () => addQuantity(),
                       ),
                       CustomSwitch(
-                        icon: const Icon(Symbols.attach_money_sharp,color: Colors.green), 
-                        title: 'Disponível para venda?', 
-                        isActive: isAvailableForSale, 
-                        setIsActive: onChangeIsAvailableForSale
-                      ),
+                          icon: const Icon(Symbols.attach_money_sharp,
+                              color: Colors.green),
+                          title: 'Disponível para venda?',
+                          isActive: isAvailableForSale,
+                          setIsActive: onChangeIsAvailableForSale),
                       CustomSwitch(
-                        icon: const Icon(Symbols.sync_alt_sharp,color: Colors.orange),
-                        title: 'Disponível para troca?', 
+                        icon: const Icon(Symbols.sync_alt_sharp,
+                            color: Colors.orange),
+                        title: 'Disponível para troca?',
                         setIsActive: onChangeIsAvailableForTrade,
                         isActive: isAvailableForTrade,
                       ),
-                      if (hasHoloOption)
+                      if (hasHoloOption && hideVariants != true)
                         CustomSwitch(
-                          icon: const Icon(Symbols.fullscreen_portrait_sharp,color: Colors.deepPurple),
-                          title: 'É uma carta Holo?', 
+                          icon: const Icon(Symbols.fullscreen_portrait_sharp,
+                              color: Colors.deepPurple),
+                          title: 'É uma carta Holo?',
                           setIsActive: onChangeIsHolo,
                           isActive: isHolo,
                         ),
-                      if (hasReverseOption)
+                      if (hasReverseOption && hideVariants != true)
                         CustomSwitch(
-                          icon: const Icon(Symbols.fullscreen_portrait_sharp,color: Colors.deepOrange),
-                          title: 'É uma carta Reverse Holo?', 
+                          icon: const Icon(Symbols.fullscreen_portrait_sharp,
+                              color: Colors.deepOrange),
+                          title: 'É uma carta Reverse Holo?',
                           setIsActive: onChangeIsReverse,
                           isActive: isReverse,
                         ),
                       ActionsRow(
-                          isOnList: isOnList,
-                          widget: widget,
-                          cardQuantity: cardQuantity,
-                          isAvailableForSale: isAvailableForSale,
-                          isAvailableForTrade: isAvailableForTrade,
-                          cardVariant: currentVariant)
+                        isOnList: isOnList,
+                        saveAction: () => _saveCard(card!),
+                        removeAction: () => _removeCard(card!),
+                      )
                     ],
                   ),
                 )
@@ -378,24 +482,18 @@ class CardQuantityOption extends StatelessWidget {
 class ActionsRow extends StatelessWidget {
   const ActionsRow({
     super.key,
-    required this.widget,
-    required this.cardQuantity,
-    required this.isAvailableForSale,
-    required this.isAvailableForTrade,
-    required this.cardVariant,
     required this.isOnList,
+    this.saveAction,
+    this.removeAction,
   });
 
-  final ModalBottomSheet widget;
-  final int cardQuantity;
-  final bool isAvailableForSale;
-  final bool isAvailableForTrade;
-  final CardVariant cardVariant;
   final bool isOnList;
+  final void Function()? saveAction;
+  final void Function()? removeAction;
 
   @override
   Widget build(BuildContext context) {
-    final bool _isOnList = isOnList;
+    final bool isOnListInner = isOnList;
     return Padding(
       padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
       child: Row(
@@ -405,13 +503,11 @@ class ActionsRow extends StatelessWidget {
                 backgroundColor: Colors.lightGreen,
               ),
               onPressed: () {
-                widget.saveCard(
-                    cardQuantity, 
-                    isAvailableForSale, 
-                    isAvailableForTrade, 
-                    cardVariant);
-                Navigator.pop(context);
-              },
+                    if (saveAction != null) {
+                      saveAction!();
+                    }
+                    Navigator.pop(context);
+                  },
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,19 +519,21 @@ class ActionsRow extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      'Salvar',
+                      'Salvar aqui',
                       style: TextStyle(color: Colors.white),
                     ),
                   )
                 ],
               )),
           const Spacer(),
-          _isOnList
+          isOnListInner
               ? ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent),
                   onPressed: () {
-                    widget.removeCard(cardVariant);
+                    if (removeAction != null) {
+                      removeAction!();
+                    }
                     Navigator.pop(context);
                   },
                   child: const Row(

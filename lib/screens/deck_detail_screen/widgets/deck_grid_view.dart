@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class DeckGridView extends StatelessWidget {
   final DeckModel deck;
-  final void Function(String cardId)? onCardTap;
-  final void Function(String cardId)? onCardLongPress;
+  final void Function(String? cardId)? onCardTap;
+  final void Function(String? cardId)? onCardLongPress;
 
   const DeckGridView({
     super.key,
@@ -35,7 +35,7 @@ class DeckGridView extends StatelessWidget {
                 ? deckId
                 : (currentCard.id ?? '$deckId-${currentCard.localId ?? ''}'),
             imageURL: currentCard.image ?? '',
-            onLongPress: () {},
+            onLongPress: () => onCardLongPress != null ? onCardLongPress!(currentCard.id) : null,
           );
         },
       ),

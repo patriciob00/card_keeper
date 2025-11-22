@@ -8,12 +8,14 @@ import 'package:card_keeper/screens/cards_list_screen/no_cards_view.dart';
 import 'package:card_keeper/screens/cards_list_screen/utils/card_status.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/badge_custom.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/cards_filter_menu_content.dart';
+import 'package:card_keeper/screens/cards_list_screen/widgets/cards_top_action.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/search_fab.dart';
 import 'package:card_keeper/screens/cards_list_screen/widgets/stats_modal.dart';
-import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
+import 'package:card_keeper/widgets/add_or_edit_card_modal.dart';
+import 'package:card_keeper/widgets/card_ripple_flip_and_badges.dart';
 import 'package:card_keeper/widgets/container_with_bg.dart';
+import 'package:card_keeper/widgets/hero_dialog_route.dart';
 import 'package:card_keeper/widgets/hero_widget.dart';
-import 'package:card_keeper/widgets/image_cached.dart';
 import 'package:card_keeper/widgets/top_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -148,12 +150,32 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     return list;
   }
 
-  Future<void> cardLongPressDialog(PokemonCard card) async {
-    final size = MediaQuery.of(context).size;
-    showDialog(
+  void openEditCardDialog(PokemonCard currentCard, Function scb, Function rcb) {
+    showModalBottomSheet(
+        useSafeArea: true,
+        backgroundColor: Colors.white,
+        clipBehavior: Clip.hardEdge,
         context: context,
-        barrierDismissible: true,
-        builder: (context) => GestureDetector(
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (BuildContext bc) {
+          return AddOrEditCardModal(
+            hideVariantsOption: true,
+            isAlreadyOnList: true, 
+            card: currentCard, 
+            variants: [currentCard],
+            removeCallback: () => rcb(),
+            saveCallback: () => scb(),
+          );
+        });
+  }
+
+  Future<void> cardLongPressDialog(PokemonCard card) async {
+
+    await Navigator.of(context).push(
+      HeroDialogRoute(
+        builder: (context) {
+          return GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
                 height: double.infinity,
@@ -161,29 +183,41 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                     BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: size.width * 0.70,
                       decoration: const BoxDecoration(
                         color: Colors.transparent,
                       ),
                       child: HeroWidget(
-                          tag: card.image ?? '',
-                          child: ImageCached(
-                            imageURL: card.image ?? '',
-                            showHoloEffect: card.variant?.isHolo ?? false,
-                            showReverseHoloEffect:
-                                card.variant?.isReverse ?? false,
-                          )),
+                        tag: card.uniqueId,
+                        child: CardRippleFlipAndBadges(
+                          disableHero: true,
+                          tag: card.uniqueId,
+                          currentCard: card
+                        ),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 30.0),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          IconButton.filled(
+                            iconSize: 28.0,
+                            onPressed: () {
+                              openEditCardDialog(
+                                card,
+                                () => Navigator.of(context).pop(),
+                                () => Navigator.of(context).pop(),
+                              );
+                            },
+                            icon: const Icon(Symbols.edit),
+                          ),
+                          const SizedBox(width: 24),
                           IconButton.filled(
                             iconSize: 28.0,
                             onPressed: () {
@@ -197,7 +231,10 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                   ],
                 ),
               ),
-            ));
+            );
+        }
+      )
+    );
   }
 
   // Aplica TODOS os filtros
@@ -358,36 +395,19 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                 fontSize: 26.0),
           ),
           actionsWidget: [
-            if (notFilteredCardList.isNotEmpty)
-              IconButton(
-                  onPressed: () {
-                    changeListViewType();
-                  },
-                  icon: Icon(
-                    showListGrid
-                        ? Symbols.view_cozy_rounded
-                        : Symbols.lists_rounded,
-                    color: Colors.white,
-                  )),
-            if (notFilteredCardList.isNotEmpty)
-              IconButton(
-                key: _filterIconKey,
-                onPressed: () => _openFiltersMenu(_filterIconKey),
-                icon: Icon(Icons.filter_list,
-                    color: filterNotSelected
-                        ? Colors.white
-                        : Colors.deepPurpleAccent),
+            CardsTopActions(
+              hasCards: notFilteredCardList.isNotEmpty,
+              showListGrid: showListGrid,
+              filterNotSelected: filterNotSelected,
+              filterIconKey: _filterIconKey,
+              onToggleListType: changeListViewType,
+              onOpenFilters: () => _openFiltersMenu(_filterIconKey),
+              onOpenStats: () => showStatsModal(
+                ref.read(pokemonCardsRepositoryProvider),
+                _computeStats(notFilteredCardList),
+                context,
               ),
-            if (notFilteredCardList.isNotEmpty)
-              IconButton(
-                  onPressed: () => showStatsModal(
-                      ref.read(pokemonCardsRepositoryProvider),
-                      _computeStats(notFilteredCardList),
-                      context),
-                  icon: const Icon(
-                    Icons.info_outline,
-                    color: Colors.white,
-                  ))
+            ),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -422,11 +442,12 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
                       emptySubtextHelper: emptySubtextHelper)
                   : showListGrid
                       ? CardsGridView(
-                        appBarheight: appBarheight, 
-                        bottomTabHeight: bottomTabHeight, 
-                        cardsList: cardsList, 
-                        cardLongPressDialog: cardLongPressDialog, 
-                        getBadges: getBadges)
+                          appBarheight: appBarheight,
+                          bottomTabHeight: bottomTabHeight,
+                          cardsList: cardsList,
+                          cardDoubleTap: (c) => cardLongPressDialog(c!),
+                          cardLongPress: (c) => cardLongPressDialog(c!),
+                          )
                       : Padding(
                           padding: EdgeInsets.only(
                             top: appBarheight + 10.0,

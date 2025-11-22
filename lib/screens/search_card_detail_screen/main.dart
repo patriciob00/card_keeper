@@ -5,7 +5,7 @@ import 'package:card_keeper/data/models/card_list_item_model.dart';
 import 'package:card_keeper/data/models/card_variant.dart';
 import 'package:card_keeper/data/models/pokemon_card.dart';
 import 'package:card_keeper/screens/search_card_detail_screen/components/flip_card.dart';
-import 'package:card_keeper/widgets/add_edit_card_modal.dart';
+import 'package:card_keeper/widgets/add_or_edit_card_modal.dart';
 import 'package:card_keeper/controllers/pokemon_cards_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,76 +71,10 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
     }
   }
 
-  void saveCardOnList(int quantity, bool isAvailableForSale, bool isAvailableForTrade, CardVariant cardVariant) {
+  void setLoadingState(bool isLoading) {
     setState(() {
-      isLoading = !isLoading;
+      isLoading = isLoading;
     });
-
-    PokemonCard newCard = PokemonCard.fromJson(currentPokemon!.toJson());
-
-    newCard.cardQuantity = quantity;
-    newCard.isAvailableForSale = isAvailableForSale;
-    newCard.isAvailableForExchange = isAvailableForTrade;
-    newCard.variant = cardVariant;
-
-    final bool variantAlreadyOnList = _detailController.pokemonIsAlreadyOnList(
-          widget.card.id ?? '',
-          cardVariant,
-        );
-
-    if(variantAlreadyOnList) {
-      _detailController.updateCard(newCard);
-    } else {
-      newCard.addedAt = DateTime.now();
-      _detailController.saveCard(newCard);
-    }
-
-    SnackBar snackBar = SnackBar(
-        duration: const Duration(seconds: 3),
-        content: Text(variantAlreadyOnList ? 'O Card foi atualizado!' : 'O Card foi adicionado a sua lista de cards!'));
-
-    getCurrentPokemon();
-
-    setState(() {
-      isLoading = !isLoading;
-    });
-
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(snackBar)
-        .closed
-        .then((reason) {});
-  }
-
-  void removeCardFromList(CardVariant cardVariant) async {
-    setState(() {
-      isLoading = !isLoading;
-    });
-
-    final PokemonCard cardToBeDeleted = pokemonVariants
-      .whereType<PokemonCard>()
-      .firstWhere(
-        (c) => c.variant == cardVariant,
-        orElse: () => currentPokemon!, // fallback de segurança
-      );
-
-    await _detailController.removeCard(cardToBeDeleted);
-
-    getCurrentPokemon();
-
-    setState(() {
-      isLoading = !isLoading;
-    });
-
-    const snackBar = SnackBar(
-        duration: Duration(seconds: 3),
-        content: Text('O Card foi removido da sua lista de cards!'));
-
-    // ignore: use_build_context_synchronously
-    ScaffoldMessenger.of(context)
-        .showSnackBar(snackBar)
-        .closed
-        .then((reason) {});
   }
 
   void showBottomSheet() {
@@ -152,11 +86,15 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
         showDragHandle: true,
         isScrollControlled: true,
         builder: (BuildContext bc) {
-          return ModalBottomSheet(
+          return AddOrEditCardModal(
             isAlreadyOnList: _isOnList, 
             card: currentPokemon as PokemonCard, 
-            saveCard: saveCardOnList, 
-            removeCard: removeCardFromList,
+            saveCallback: getCurrentPokemon,
+            removeCallback: getCurrentPokemon,
+            onListenerFinishRemoveCard: () => setLoadingState(false),
+            onListenerFinishSaveCard: () => setLoadingState(false),
+            onListenerStartRemoveCard: () => setLoadingState(true),
+            onListenerStartSaveCard: () => setLoadingState(true),
             variants: pokemonVariants,
           );
         });

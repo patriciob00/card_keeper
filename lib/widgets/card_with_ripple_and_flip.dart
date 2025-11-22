@@ -13,21 +13,25 @@ class CardWithRippleAndFlip extends StatefulWidget {
     super.key,
     required this.tag,
     required this.imageURL,
-    required this.currentPokemon,
+    required this.currentCard,
     this.onTap,
     this.onLongPress,
+    this.onDoubleTap,
     this.isAlreadyOnList = false,
     this.width,
     this.aspectRatio = 63 / 88,
+    this.disableHero = false,
   });
 
   final String tag;
   final String imageURL;
 
-  final PokemonCard currentPokemon;
-  final VoidCallback? onTap;
-  final VoidCallback? onLongPress;
+  final PokemonCard? currentCard;
+  final void Function()? onTap;
+  final void Function()? onLongPress;
+  final void Function()? onDoubleTap;
   final bool isAlreadyOnList;
+  final bool? disableHero;
 
   final double? width;
   final double aspectRatio;
@@ -54,12 +58,32 @@ class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlip>
     super.dispose();
   }
 
-  Future<void> _flip() async {
+  void _flip() {
     setState(() => _isFront = !_isFront);
     if (_isFront) {
-      await _controller.reverse();
+      _controller.reverse();
     } else {
-      await _controller.forward();
+      _controller.forward();
+    }
+  }
+
+  void _onTap () {
+    if (widget.onTap != null) {
+      widget.onTap!();
+    } else {
+      _flip();
+    }
+  }
+
+  void _onDoubleTap () {
+    if (widget.onDoubleTap != null) {
+      widget.onDoubleTap!();
+    }
+  }
+
+  void _onLongPress() {
+    if(widget.onLongPress != null) {
+      widget.onLongPress!();
     }
   }
 
@@ -83,8 +107,8 @@ class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlip>
           final angle = _controller.value * pi; // 0 -> π
           final frontVisible = angle <= (pi / 2);
 
-          final bool showHoloEffect = widget.currentPokemon.variant?.isHolo ?? false;
-          final bool showReverseEffect = widget.currentPokemon.variant?.isReverse ?? false;
+          final bool showHoloEffect = widget.currentCard?.variant?.isHolo ?? false;
+          final bool showReverseEffect = widget.currentCard?.variant?.isReverse ?? false;
 
           return Transform(
             alignment: Alignment.center,
@@ -94,10 +118,12 @@ class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlip>
                     borderRadius: BorderRadius.circular(12),
                     child: SizedBox.expand(
                       child: CardWithRipple(
+                        disableHero: widget.disableHero,
                         tag: widget.tag,
                         imageURL: widget.imageURL,
-                        onTap: widget.onTap ?? _flip,
-                        onLongPress: widget.onLongPress,
+                        onTap: _onTap,
+                        onDoubleTap: _onDoubleTap,
+                        onLongPress: _onLongPress,
                         showHoloEffect: showHoloEffect,
                         showReverseHoloEffect: showReverseEffect,
                       ),
@@ -110,7 +136,7 @@ class _CardWithRippleAndFlipState extends State<CardWithRippleAndFlip>
                       size: size,
                       onTap: widget.onTap ?? _flip,
                       isAlreadyOnList: widget.isAlreadyOnList,
-                      currentCard: widget.currentPokemon,
+                      currentCard: widget.currentCard!,
                     ),
                   ),
           );

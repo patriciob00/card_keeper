@@ -7,47 +7,75 @@ import 'package:flutter/material.dart';
 class CardWithRipple extends StatelessWidget {
   const CardWithRipple({
     super.key,
-    required this.tag,
+    this.tag = '',
     required this.imageURL,
     this.onTap,
     this.onLongPress,
+    this.onDoubleTap,
     this.showHoloEffect = false,
     this.showReverseHoloEffect = false,
+    this.disableHero = false,
   });
 
   final String tag;
   final String imageURL;
-  final Function? onTap;
-  final Function? onLongPress;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onDoubleTap;
   final bool? showHoloEffect;
   final bool? showReverseHoloEffect;
+  final bool? disableHero;
+
+  void _onTap() {
+    if (onTap != null) {
+      onTap!();
+    }
+  }
+
+  void _onDoubleTap() {
+    if (onDoubleTap != null) {
+      onDoubleTap!();
+    }
+  }
+
+  void _onLongPress() {
+    if (onLongPress != null) {
+      onLongPress!();
+    }
+  }
+
+  Widget content(Widget initialContent) {
+    if (disableHero == true) {
+      return initialContent;
+    } else {
+      return HeroWidget(
+        tag: tag,
+        child: initialContent,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      HeroWidget(
-        tag: tag,
-        child: Stack(children: [
-          ImageCached(
-            imageURL: imageURL,
-            showHoloEffect: showHoloEffect,
-            showReverseHoloEffect: showReverseHoloEffect,
-          ),
-          if (showHoloEffect == true)
-            const Positioned.fill(child: HoloEffect()),
-          if (showReverseHoloEffect == true)
+      content(Stack(children: [
+        ImageCached(
+          imageURL: imageURL,
+        ),
+        if (showHoloEffect == true) const Positioned.fill(child: HoloEffect()),
+        if (showReverseHoloEffect == true)
           const Positioned.fill(child: ReverseHoloEffect())
-        ]),
-      ),
+      ])),
       Positioned.fill(
           child: Material(
               borderRadius: const BorderRadius.all(Radius.circular(16)),
               color: Colors.transparent,
               child: InkWell(
-                  splashColor: Colors.white24,
-                  onTap: () => onTap != null ? onTap!() : null,
-                  onLongPress: () =>
-                      onLongPress != null ? onLongPress!() : null))),
+                splashColor: Colors.white24,
+                onDoubleTap: () => _onDoubleTap(),
+                onTap: () => _onTap(),
+                onLongPress: () => _onLongPress(),
+              ))),
     ]);
   }
 }

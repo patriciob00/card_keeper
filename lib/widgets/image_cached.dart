@@ -12,8 +12,6 @@ class ImageCached extends StatelessWidget {
     this.fit = BoxFit.contain, // padrão original
     this.width,
     this.height,
-    this.showHoloEffect = false,
-    this.showReverseHoloEffect = false,
   });
 
   final String imageURL;
@@ -23,8 +21,6 @@ class ImageCached extends StatelessWidget {
   final BoxFit fit;
   final double? width;
   final double? height;
-  final bool? showHoloEffect;
-  final bool? showReverseHoloEffect;
 
   @override
   Widget build(BuildContext context) {

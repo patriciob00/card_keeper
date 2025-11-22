@@ -1,6 +1,7 @@
 import 'package:card_keeper/data/models/pokemon_card.dart';
-import 'package:card_keeper/widgets/card_with_ripple_and_flip.dart';
+import 'package:card_keeper/widgets/card_ripple_flip_and_badges.dart';
 import 'package:card_keeper/widgets/category_header.dart';
+import 'package:card_keeper/widgets/hero_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
@@ -39,10 +40,11 @@ class CardsCategorizedListView extends StatelessWidget {
           itemCount: grouped.length,
           itemBuilder: (_, i) {
             final category = grouped.keys.elementAt(i);
-            final list = grouped[category]!..sort(
-              (a, b) => (b.addedAt ?? DateTime(2000))
-                  .compareTo(a.addedAt ?? DateTime(2000)),
-            );
+            final list = grouped[category]!
+              ..sort(
+                (a, b) => (b.addedAt ?? DateTime(2000))
+                    .compareTo(a.addedAt ?? DateTime(2000)),
+              );
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 24),
@@ -59,28 +61,21 @@ class CardsCategorizedListView extends StatelessWidget {
                     spacing: hSpacing,
                     runSpacing: vSpacing,
                     children: list.map((card) {
-                      final tag = card.image ?? card.id ?? '';
 
                       return SizedBox(
                         width: itemWidth,
                         height: itemWidth * 1.4,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            CardWithRippleAndFlip(
-                              isAlreadyOnList: true,
-                              currentPokemon: card,
-                              tag: tag,
-                              imageURL: card.image ?? '',
-                              onLongPress: () => onLongPress?.call(card),
-                            ),
-                            if (buildBadgeOverlay != null)
-                              Positioned(
-                                top: -12,
-                                right: 3,
-                                child: buildBadgeOverlay!(card),
-                              ),
-                          ],
+                        child: HeroWidget(
+                          tag: card.uniqueId,
+                          child: CardRippleFlipAndBadges(
+                            disableHero: true,
+                            tag: card.uniqueId,
+                            currentCard: card,
+                            cardLongPress: () =>
+                                onLongPress != null ? onLongPress!(card) : null,
+                            cardDoubleTap: () =>
+                                onLongPress != null ? onLongPress!(card) : null,
+                          ),
                         ),
                       );
                     }).toList(),

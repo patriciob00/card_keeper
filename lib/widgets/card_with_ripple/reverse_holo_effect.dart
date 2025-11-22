@@ -13,7 +13,7 @@ class _ReverseHoloEffectState extends State<ReverseHoloEffect>
   late final AnimationController _controller =
       AnimationController(
         vsync: this,
-        duration: const Duration(seconds: 6),
+        duration: const Duration(seconds: 5),
       )..repeat(); // loop contínuo
 
   @override
@@ -38,11 +38,11 @@ class _ReverseHoloEffectState extends State<ReverseHoloEffect>
                 center: Alignment.center,
                 transform: GradientRotation(angle),
                 colors: [
-                  Colors.orange.withValues(alpha: .35),
-                  Colors.yellow.withValues(alpha: .45),
-                  Colors.red.withValues(alpha: .35),
+                  Colors.orange.withValues(alpha: .38),
+                  Colors.yellow.withValues(alpha: .48),
+                  Colors.red.withValues(alpha: .38),
                   Colors.transparent,
-                  Colors.orange.withValues(alpha: .35),
+                  Colors.orange.withValues(alpha: .38),
                 ],
                 stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
               ),
