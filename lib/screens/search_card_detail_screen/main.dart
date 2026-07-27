@@ -163,18 +163,20 @@ class SearchCardDetailPageState extends ConsumerState<SearchCardDetailPage> {
               Container(
                 width: double.infinity,
                 height: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.black,
-                    gradient: LinearGradient(
-                        begin: FractionalOffset.topCenter,
-                        end: FractionalOffset.bottomCenter,
+                    gradient: RadialGradient(
+                        radius: 4.0,
+                        center: Alignment.center,
+                        // begin: FractionalOffset.topCenter,
+                        // end: FractionalOffset.bottomCenter,
                         colors: [
-                          Colors.transparent,
-                          Colors.black,
+                          Colors.black.withValues(alpha: 0.4),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
-                        stops: [
-                          0.2,
-                          0.0
+                        stops: const [
+                          0.5,
+                          0.0,
                         ])),
               ),
               BackdropFilter(
